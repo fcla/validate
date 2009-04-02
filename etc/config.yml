@@ -1,0 +1,21 @@
+# Configuration directives
+
+# virus checking
+virus_checker_executable: /usr/bin/true
+virus_exit_status_infected: 1
+virus_exit_status_clean: 0
+
+# canonicalization
+
+unzip_executable_path: /usr/bin/unzip
+tar_executable_path: /usr/bin/tar
+
+# DAITSS schema location registry
+# Syntax:
+# NAMESPACE_PREFIX: SCHEMA_URL
+
+METS: http://www.loc.gov/standards/mets/mets.xsd
+
+# temporary location for packages to store 
+
+temp_dir: /Users/manny/workspace/submit/tmp
