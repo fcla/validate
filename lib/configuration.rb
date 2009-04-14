@@ -22,7 +22,7 @@ class Configuration
   include Singleton
 
   # path to configuration file
-  CONFIGURATION_FILE = "/Users/manny/workspace/submit/etc/config.yml"
+  CONFIGURATION_FILE = "/Users/manny/workspace/validate-service/etc/config.yml"
 
   attr_reader :virus_exit_status_infected
   attr_reader :virus_exit_status_clean
