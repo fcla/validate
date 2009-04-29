@@ -31,6 +31,9 @@ class PackageValidator
     @descriptor_path = ""
     @descriptor_document
     @result = {}
+
+    # tell the LibXML parser to ignore whitespace
+    LibXML::XML.default_keep_blanks = false
   end
 
   # runs all validation tasks on a package, building an XML report as the validation progresses.
@@ -200,6 +203,7 @@ class PackageValidator
     @package_paths_array.each do |path|
       if File.file? path
         summary = Executor.execute_return_summary "#{Configuration.instance.virus_checker_executable} #{path}"
+        package_path = path.gsub(@package_paths_array[0] + "/", "")
 
         # inspect the exit status of the virus checker to see what the result is for this file
 
@@ -207,49 +211,49 @@ class PackageValidator
 
           # success
         when Configuration.instance.virus_exit_status_clean
-          @result["virus_check"][path] = {}
+          @result["virus_check"][package_path] = {}
 
-          @result["virus_check"][path]["outcome"] = "passed"
-          @result["virus_check"][path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
+          @result["virus_check"][package_path]["outcome"] = "passed"
+          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
 
           # virus found
         when Configuration.instance.virus_exit_status_infected
-          @result["virus_check"][path] = {}
+          @result["virus_check"][package_path] = {}
 
-          @result["virus_check"][path]["outcome"] = "failed"
-          @result["virus_check"][path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
+          @result["virus_check"][package_path]["outcome"] = "failed"
+          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
 
           if summary['STDOUT'] != nil
-            @result["virus_check"][path]["STDOUT"] = summary['STDOUT']
+            @result["virus_check"][package_path]["STDOUT"] = summary['STDOUT']
           else
-            @result["virus_check"][path]["STDOUT"] = ""
+            @result["virus_check"][package_path]["STDOUT"] = ""
           end
 
           if summary['STDERR'] != nil
-            @result["virus_check"][path]["STDERR"] = summary['STDERR']
+            @result["virus_check"][package_path]["STDERR"] = summary['STDERR']
           else
-            @result["virus_check"][path]["STDERR"] = ""
+            @result["virus_check"][package_path]["STDERR"] = ""
           end
 
           all_ok = false
 
           # non-zero exit status that is not the success case
         else
-          @result["virus_check"][path] = {}
+          @result["virus_check"][package_path] = {}
 
-          @result["virus_check"][path]["outcome"] = "indeterminate"
-          @result["virus_check"][path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
+          @result["virus_check"][package_path]["outcome"] = "indeterminate"
+          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
 
           if summary['STDOUT'] != nil
-            @result["virus_check"][path]["STDOUT"] = summary['STDOUT']
+            @result["virus_check"][package_path]["STDOUT"] = summary['STDOUT']
           else
-            @result["virus_check"][path]["STDOUT"] = ""
+            @result["virus_check"][package_path]["STDOUT"] = ""
           end
 
           if summary['STDERR'] != nil
-            @result["virus_check"][path]["STDERR"] = summary['STDERR']
+            @result["virus_check"][package_path]["STDERR"] = summary['STDERR']
           else
-            @result["virus_check"][path]["STDERR"] = ""
+            @result["virus_check"][package_path]["STDERR"] = ""
           end
 
           all_ok = false
@@ -280,13 +284,13 @@ class PackageValidator
       file_path = File.join @package_paths_array[0], flocat_node_attributes["href"]
       described_checksum = file_node_attributes["CHECKSUM"]
 
-      @result["checksum_check"][file_path] = {}
+      @result["checksum_check"][flocat_node_attributes["href"]] = {}
 
       # check to see that the file exists, report accordingly
       if File.exists? file_path
-        @result["checksum_check"][file_path]["file_exists"] = "success"
+        @result["checksum_check"][flocat_node_attributes["href"]]["file_exists"] = "success"
       else
-        @result["checksum_check"][file_path]["file_exists"] = "failure"
+        @result["checksum_check"][flocat_node_attributes["href"]]["file_exists"] = "failure"
 
         all_ok = false
       end
@@ -300,11 +304,11 @@ class PackageValidator
       end
 
       if computed_checksum.upcase == described_checksum.upcase
-        @result["checksum_check"][file_path]["checksum_match"] = "success"
+        @result["checksum_check"][flocat_node_attributes["href"]]["checksum_match"] = "success"
       else
-        @result["checksum_check"][file_path]["checksum_match"] = "failure"
-        @result["checksum_check"][file_path]["described"] = described_checksum.upcase
-        @result["checksum_check"][file_path]["computed"] = computed_checksum.upcase
+        @result["checksum_check"][flocat_node_attributes["href"]]["checksum_match"] = "failure"
+        @result["checksum_check"][flocat_node_attributes["href"]]["described"] = described_checksum.upcase
+        @result["checksum_check"][flocat_node_attributes["href"]]["computed"] = computed_checksum.upcase
 
         all_ok = false
       end
