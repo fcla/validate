@@ -1,23 +1,25 @@
 #!/usr/bin/env ruby
-
 require 'sinatra'
 require 'package_validator'
+require 'pp'
 
 # if package is on localhost, validates package and returns the XML report.
 # if the package is on any other host, responds to request with 501.
 
 def validate uri_path
+  return ["foo", "bar"]
+
   # check our provided path.
   # we expect a URL of the form file://localhost/path/to/package
   # if host is not localhost, respond with 501.
-  if uri_path =~ /^file:\/\/localhost/
-    local_path = uri_path.gsub(/^file:\/\/localhost/, "")
-  else
-    not_implemented
-  end
-
-  validator = PackageValidator.new
-  validator.validate_package(local_path)
+  #if uri_path =~ /^file:\/\/localhost/
+    #local_path = uri_path.gsub(/^file:\/\/localhost/, "")
+  #else
+    #not_implemented
+  #end
+#
+  #validator = PackageValidator.new
+  #return validator.validate_package(local_path)
 end
 
 # responds to request with a 501 - Not Implemented
@@ -32,7 +34,8 @@ end
 # Attempts to validate package if URI begins with file://
 get '/validate' do
   if params[:location] =~ /^file:\/\//
-    validate params[:location]
+    result = validate params[:location]
+    erb :report
   elsif params[:location] =~ /^http:\/\//
     not_implemented
   else

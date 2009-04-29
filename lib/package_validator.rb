@@ -1,6 +1,6 @@
 require 'find'
-require 'libxml'
 require 'yaml'
+require 'libxml'
 require 'pp'
 require 'executor'
 require 'digest/md5'
@@ -12,12 +12,12 @@ require 'configuration'
 # --------------------------
 # The PackageValidator class encapsulates package validation tasks
 #
-# These tasks include: Validation of package syntax, SIP descriptor validation, File checksum validation, virus check, account/project validation
+# These tasks include: Validation of package syntax, SIP descriptor validation, File checksum validation, virus check, account/project validation. Returns a data structure containing validation results.
 #
 # SAMPLE USAGE:
 #
 # validator = PackageValidator.new
-# validator.validate_package /path/to/package
+# results = validator.validate_package /path/to/package
 #
 # NOTES:
 # If *BOTH* PACKAGE_NAME.xml and PACKAGE_NAME.XML are present, PACKAGE_NAME.XML will be treated as a content file
@@ -30,12 +30,7 @@ class PackageValidator
     @package_paths_array = []
     @descriptor_path = ""
     @descriptor_document
-    @report = LibXML::XML::Document.new
-
-    @report.root = LibXML::XML::Node.new 'validity'
-
-    # tell the LibXML parser to ignore whitespace
-    LibXML::XML::Parser.default_keep_blanks = false
+    @result = {}
   end
 
   # runs all validation tasks on a package, building an XML report as the validation progresses.
@@ -52,41 +47,25 @@ class PackageValidator
 
     # any ValidationFailed exceptions caught indicate a problem with the package 
     rescue ValidationFailed
-      @report.root['outcome'] = "failure"
+      @result["outcome"] = "failure"
 
     # any other exceptions caught will result in report indicating failure to complete validation
-    #rescue => e
-      #@report.root['outcome'] = "validation_failed"
+    rescue => e
+      @result["outcome"] = "failure"
     end
 
     # no exceptions caught mean no fatal errors, let's see what happened with the virus and checksum checks
     if virus_check_clean && checksums_match
-      @report.root['outcome'] = "success"
+      @result["outcome"] = "success"
     else
-      @report.root['outcome'] = "failure"
+      @result["outcome"] = "failure"
     end
 
-    # return string serialization of validation report
-    return @report.to_s
+    # return result hash
+    return @result
   end
 
   private 
-
-  # creates a node with given name and outcome value
-  
-  def create_node node_name, outcome
-    node = LibXML::XML::Node.new node_name
-    node["outcome"] = outcome
-
-    return node
-  end
-
-  # adds current report node to root report node, then throws ValidationFailed exception
-
-  def fail_validation message, node
-    @report.root << node
-    raise ValidationFailed, message
-  end
 
   # checks that a package is in expected form:
   # * Target path is a directory that exists
@@ -103,38 +82,34 @@ class PackageValidator
   # validate_syntax_content_file_present
 
   def validate_package_syntax path_to_package
-    syntax_report_node = LibXML::XML::Node.new 'package_syntax'
+    @result["syntax"] = {}
 
-    syntax_report_node = validate_syntax_path_is_dir(path_to_package, syntax_report_node)
-    syntax_report_node = validate_syntax_descriptor_exists(path_to_package, syntax_report_node)
-    syntax_report_node = validate_syntax_descriptor_is_file(path_to_package, syntax_report_node)
-    syntax_report_node = validate_syntax_content_file_present(path_to_package, syntax_report_node)
-  
-    @report.root << syntax_report_node
+    validate_syntax_path_is_dir(path_to_package)
+    validate_syntax_descriptor_exists(path_to_package)
+    validate_syntax_descriptor_is_file(path_to_package)
+    validate_syntax_content_file_present(path_to_package)
   end
 
   # checks that path to package specified is a directory
   # takes a node syntax_report_node, and path to package
-  # on success, writes child element to and returns syntax_report_node
-  # on failure, calls fail_validation, passing syntax_report_node after writing child element with failure details
+  # on success, adds appropriate values to hash
+  # on failure, adds appropriate values to hash and raises exception
 
-  def validate_syntax_path_is_dir path_to_package, syntax_report_node
+  def validate_syntax_path_is_dir path_to_package
     if not File.directory? path_to_package
-      syntax_report_node << create_node("package_is_directory", "failure")
-      fail_validation "Specified path is not a directory", syntax_report_node
+      @result["syntax"]["package_is_directory"] = "failure"
+      raise StandardError, "Specified path is not a directory"
     else
-      syntax_report_node << create_node("package_is_directory", "success")
+      @result["syntax"]["package_is_directory"] = "success"
     end
-
-    return syntax_report_node
   end
 
   # checks that a descriptor of form PACKAGE_NAME.xml/XML exists
   # takes a node syntax_report_node, and path to package
-  # on success, writes child element to and returns syntax_report_node
-  # on failure, calls fail_validation, passing syntax_report_node after writing child element with failure details
+  # on success, adds appropriate values to hash
+  # on failure, adds appropriate values to hash and raises exception
 
-  def validate_syntax_descriptor_exists path_to_package, syntax_report_node
+  def validate_syntax_descriptor_exists path_to_package
     # get a list of the files therein and put it into an array
     Find.find(path_to_package) do |stuff|
       @package_paths_array.push stuff
@@ -145,43 +120,39 @@ class PackageValidator
     # the value at index 0 is always the directory name, so we look for a file named package_file_array[0].xml
     if @package_paths_array.include? "#{@package_paths_array[0]}/#{package_basename}.xml"
       @descriptor_path = "#{@package_paths_array[0]}/#{package_basename}.xml"
-      syntax_report_node << create_node("descriptor_found", "success")
+      @result["syntax"]["descriptor_found"] = "success"
 
       # if we didn't find PACKAGE_NAME.xml, there is still the possibility we have PACAKGE_NAME.XML
     elsif @package_paths_array.include? "#{@package_paths_array[0]}/#{package_basename}.XML"
       @descriptor_path = "#{@package_paths_array[0]}/#{package_basename}.XML"
-      syntax_report_node << create_node("descriptor_found", "success")
+      @result["syntax"]["descriptor_found"] = "success"
 
     else
-      syntax_report_node << create_node("descriptor_found", "failure")
-      fail_validation "Expected SIP descriptor not found", syntax_report_node
+      @result["syntax"]["descriptor_found"] = "failure"
+      raise StandardError, "Expected SIP descriptor not found"
     end
-
-    return syntax_report_node
   end
 
   # checks that descriptor is a file
   # takes a node syntax_report_node, and path to package
-  # on success, writes child element to and returns syntax_report_node
-  # on failure, calls fail_validation, passing syntax_report_node after writing child element with failure details
+  # on success, adds appropriate values to hash
+  # on failure, adds appropriate values to hash and raises exception
 
-  def validate_syntax_descriptor_is_file path_to_package, syntax_report_node
+  def validate_syntax_descriptor_is_file path_to_package
     if File.file? @descriptor_path
-      syntax_report_node << create_node("descriptor_is_file", "success")
+      @result["syntax"]["descriptor_is_file"] = "success"
     else
-      syntax_report_node << create_node("descriptor_is_file", "failure")
-      fail_validation "SIP descriptor is not a file", syntax_report_node
+      @result["syntax"]["descriptor_is_file"] = "failure"
+      raise StandardError, "SIP descriptor is not a file"
     end
-
-    return syntax_report_node
   end
 
   # checks that at least one content file is present in the package
   # takes a node syntax_report_node, and path to package
-  # on success, writes child element to and returns syntax_report_node
-  # on failure, calls fail_validation, passing syntax_report_node after writing child element with failure details
+  # on success, adds appropriate values to hash
+  # on failure, adds appropriate values to hash and raises exception
 
-  def validate_syntax_content_file_present path_to_package, syntax_report_node
+  def validate_syntax_content_file_present path_to_package
     content_file_found = false
 
     @package_paths_array.each do |path|
@@ -191,13 +162,11 @@ class PackageValidator
     end
 
     if content_file_found
-      syntax_report_node << create_node("content_file_found", "success")
+      @result["syntax"]["content_file_found"] = "success"
     else
-      syntax_report_node << create_node("content_file_found", "failure")
-      fail_validation "No content files found", syntax_report_node
+      @result["syntax"]["content_file_found"] = "failure"
+      raise StandardError, "No content files found"
     end
-
-    return syntax_report_node
   end
 
 
@@ -205,54 +174,18 @@ class PackageValidator
   # TODO: implement
 
   def validate_account_project 
-    ap_report_node = LibXML::XML::Node.new 'account_project_validation'
-
-    ap_report_node << create_node("account_project_valid", "test_not_implemented")
-
-    @report.root << ap_report_node
+    @result["account_project_validation"] = {}
+    @result["account_project_validation"]["account_project_valid"] = "test_not_implemented"
   end
 
   # passes descriptor to XML validation service
   # TODO: implement, once we have an XML validation service
   def validate_descriptor
-    descriptor_validation_node = LibXML::XML::Node.new 'descriptor_validation'
-    descriptor_validation_node << create_node("descriptor_valid", "test_not_implemented")
-    @report.root << descriptor_validation_node
+    @result["descriptor_validation"] = {}
+    @result["descriptor_validation"]["descriptor_valid"] = "test_not_implemented"
 
     # for now, we have to assume the descriptor is valid
     @descriptor_document = LibXML::XML::Document.file @descriptor_path
-
-    # code below was a simple LibXML validator, used before we decided to break XML validation out into it's own service
-    
-    #begin
-      ## tell the parser to ignore whitespace
-      #LibXML::XML::Parser.default_keep_blanks = false
-#
-      #mets_schema = LibXML::XML::Schema.new Configuration.instance.mets_schema_location
-#
-      #@descriptor_document = LibXML::XML::Document.file @descriptor_path
-      #root_node = @descriptor_document.root
-      #children = root_node.children
-#
-      ## we expect that our root node is in the METS namespace
-      #raise ValidationFailed, "Root node not in METS namespace" unless root_node.namespace_node.prefix == "METS"
-#
-      ## validate the document against METS schema
-      #raise ValidationFailed, "Descriptor did not validate against the METS schema" unless @descriptor_document.validate_schema mets_schema
-#
-      ## get the account/project, then set instance variables accordingly
-      #agreement_info_node = @descriptor_document.find_first('//daitss:AGREEMENT_INFO')
-#
-      #raise ValidationFailed, "Agreement info missing" unless agreement_info_node
-#
-      #agreement_info_attributes = agreement_info_node.attributes
-#
-      #@account = agreement_info_attributes["ACCOUNT"]
-      #@project = agreement_info_attributes["PROJECT"]
-#
-    #rescue LibXML::XML::Parser::ParseError 
-      #raise ValidationFailed, "Error parsing XML file, please check for well-formedness"
-    #end
   end
 
   # runs a virus check on the package
@@ -260,7 +193,8 @@ class PackageValidator
   # returns true if all clean, false otherwise
   
   def virus_check
-    virus_check_node = LibXML::XML::Node.new 'virus_check'
+    @result["virus_check"] = {}
+
     all_ok = true
 
     @package_paths_array.each do |path|
@@ -273,67 +207,56 @@ class PackageValidator
 
           # success
         when Configuration.instance.virus_exit_status_clean
-          node = create_node("virus_check_file", "passed")
-          node["path"] = path
-          node["virus_checker_executable"] = Configuration.instance.virus_checker_executable
+          @result["virus_check"][path] = {}
 
-          virus_check_node << node
+          @result["virus_check"][path]["outcome"] = "passed"
+          @result["virus_check"][path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
 
           # virus found
         when Configuration.instance.virus_exit_status_infected
-          node = create_node("virus_check_file", "failed")
-          node["path"] = path
-          node["virus_checker_executable"] = Configuration.instance.virus_checker_executable
+          @result["virus_check"][path] = {}
+
+          @result["virus_check"][path]["outcome"] = "failed"
+          @result["virus_check"][path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
 
           if summary['STDOUT'] != nil
-            stdout_node = LibXML::XML::Node.new 'STDOUT'
-            stdout_node << summary['STDOUT']
+            @result["virus_check"][path]["STDOUT"] = summary['STDOUT']
           else
-            stdout_node = LibXML::XML::Node.new 'STDOUT'
+            @result["virus_check"][path]["STDOUT"] = ""
           end
 
           if summary['STDERR'] != nil
-            stderr_node = LibXML::XML::Node.new 'STDERR'
-            stderr_node << summary['STDERR']
+            @result["virus_check"][path]["STDERR"] = summary['STDERR']
           else
-            stderr_node = LibXML::XML::Node.new 'STDERR'
+            @result["virus_check"][path]["STDERR"] = ""
           end
 
-          node << stdout_node
-          node << stderr_node
-          virus_check_node << node
           all_ok = false
 
           # non-zero exit status that is not the success case
         else
-          node = create_node("virus_check_file", "indeterminate")
-          node["path"] = path
-          node["virus_checker_executable"] = Configuration.instance.virus_checker_executable
+          @result["virus_check"][path] = {}
+
+          @result["virus_check"][path]["outcome"] = "indeterminate"
+          @result["virus_check"][path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
 
           if summary['STDOUT'] != nil
-            stdout_node = LibXML::XML::Node.new 'STDOUT'
-            stdout_node << summary['STDOUT']
+            @result["virus_check"][path]["STDOUT"] = summary['STDOUT']
           else
-            stdout_node = LibXML::XML::Node.new 'STDOUT'
+            @result["virus_check"][path]["STDOUT"] = ""
           end
 
           if summary['STDERR'] != nil
-            stderr_node = LibXML::XML::Node.new 'STDERR'
-            stderr_node << summary['STDERR']
+            @result["virus_check"][path]["STDERR"] = summary['STDERR']
           else
-            stderr_node = LibXML::XML::Node.new 'STDERR'
+            @result["virus_check"][path]["STDERR"] = ""
           end
 
-          node << stdout_node
-          node << stderr_node
-          virus_check_node << node
           all_ok = false
-
         end
       end # of if
     end # of loop
 
-    @report.root << virus_check_node
     return all_ok
   end # of method virus_check
 
@@ -342,7 +265,7 @@ class PackageValidator
   # TODO: check CHECKSUMTYPE attribute, and calcuate accordingly
   
   def validate_checksums
-    checksum_node = LibXML::XML::Node.new 'checksum_check'
+    @result["checksum_check"] = {}
     all_ok = true
 
     file_nodes = @descriptor_document.find('//METS:file').to_a
@@ -357,15 +280,13 @@ class PackageValidator
       file_path = File.join @package_paths_array[0], flocat_node_attributes["href"]
       described_checksum = file_node_attributes["CHECKSUM"]
 
+      @result["checksum_check"][file_path] = {}
+
       # check to see that the file exists, report accordingly
       if File.exists? file_path
-        fe_node = create_node("file_exists", "success")
-        fe_node['path'] = file_path
-        checksum_node << fe_node
+        @result["checksum_check"][file_path]["file_exists"] = "success"
       else
-        fe_node = create_node("file_exists", "faliure")
-        fe_node['path'] = file_path
-        checksum_node << fe_node
+        @result["checksum_check"][file_path]["file_exists"] = "failure"
 
         all_ok = false
       end
@@ -379,22 +300,16 @@ class PackageValidator
       end
 
       if computed_checksum.upcase == described_checksum.upcase
-        cm_node = create_node("checksum_match", "success")
-        cm_node['path'] = file_path
-        checksum_node << cm_node
+        @result["checksum_check"][file_path]["checksum_match"] = "success"
       else
-        cm_node = create_node("checksum_match", "failure")
-        cm_node['path'] = file_path
-        cm_node['described'] = described_checksum.upcase
-        cm_node['computed'] = computed_checksum.upcase
-
-        checksum_node << cm_node
+        @result["checksum_check"][file_path]["checksum_match"] = "failure"
+        @result["checksum_check"][file_path]["described"] = described_checksum.upcase
+        @result["checksum_check"][file_path]["computed"] = computed_checksum.upcase
 
         all_ok = false
       end
-
     end # of loop
-    @report.root << checksum_node
+
     return all_ok
   end
 
