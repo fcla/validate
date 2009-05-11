@@ -17,4 +17,16 @@
     <virus_check_file outcome="<%= value['outcome'] %>" path="<%= key %>" virus_checker_executable="<%= value['virus_checker_executable'] %>"/>
 <% end %>
   </virus_check>
+  <checksum_check>
+  <% @result['checksum_check'].each do |key, value| %>
+    <file_exists outcome="<%= value["file_exists"] %>" path="<%= key %> " />
+    <% if value["file_exists"] == "success" %>
+      <% if value["checksum_match"] == "success" %>
+        <checksum_match outcome="<%= value["checksum_match"] %>" path="<%= key %>" />
+      <% else %>
+        <checksum_match outcome="<%= value["checksum_match"] %>" path="<%= key %>" described="<%= value["described"] %>" computed="<%= value["computed"] %>" />
+      <% end %>
+    <% end %>
+  <% end %>
+  </checksum_check>
 </validity>
