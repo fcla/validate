@@ -19,7 +19,7 @@
   </virus_check>
   <checksum_check>
   <% @result['checksum_check'].each do |key, value| %>
-    <file_exists outcome="<%= value["file_exists"] %>" path="<%= key %> " />
+    <file_exists outcome="<%= value["file_exists"] %>" path="<%= key %>" />
     <% if value["file_exists"] == "success" %>
       <% if value["checksum_match"] == "success" %>
         <checksum_match outcome="<%= value["checksum_match"] %>" path="<%= key %>" />
