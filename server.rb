@@ -1,42 +1,38 @@
 #!/usr/bin/env ruby
+
 require 'sinatra'
+require 'cgi'
 require 'package_validator'
-require 'pp'
 
-# if package is on localhost, validates package and returns the XML report.
-# if the package is on any other host, responds to request with 501.
+# if we want to rack multiple sinatras up we need to have them separate
+class Validation < Sinatra::Default
 
-def validate uri_path
-  # check our provided path.
-  # we expect a URL of the form file://localhost/path/to/package
-  # if host is not localhost, respond with 501.
-  if uri_path =~ /^file:\/\/localhost/
-    local_path = uri_path.gsub(/^file:\/\/localhost/, "")
-  else
-    not_implemented
-  end
+  # Expects a query parameter named location to be a cgi escaped uri
+  # of a package. Currently only file urls are supported.
+  # Returns 400 if there is a problem with the URI.
+  get '/' do
 
-  validator = PackageValidator.new
-  return validator.validate_package(local_path)
-end
+    # make sure location exists
+    halt 400, "Missing parameter: location" unless params[:location]
 
-# responds to request with a 501 - Not Implemented
-def not_implemented
-  halt 501, "I don't know how to pull packages from the cloud yet"
-end
+    # parse location into a url
+    url = begin
+            raw_url = CGI::unescape params[:location]
+            URI.parse raw_url
+          rescue => e
+            halt 400, "Ill-formed url: #{raw_url}"
+          end
 
-# /validate is exposed, and expects a GET variable "location" containing a URI to a package
-# to validate.
-# Returns a 400 if location GET variable is missing, or if URI begins with anything but http:// and file://
-# Returns a 501 if URI begins with http://
-# Attempts to validate package if URI begins with file://
-get '/validate' do
-  if params[:location] =~ /^file:\/\//
-    @result = validate params[:location]
+    # for now only support file
+    halt 400, "Unsupported URL scheme: #{url.scheme}" unless url.scheme == 'file'
+
+    # all clean, validate
+    validator = PackageValidator.new
+    @result = validator.validate_package url.path
     erb :report
-  elsif params[:location] =~ /^http:\/\//
-    not_implemented
-  else
-    halt 400, "Missing parameter: location"
+
   end
+
 end
+
+Validation.run! if __FILE__ == $0
