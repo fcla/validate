@@ -16,7 +16,6 @@ require 'configuration'
 # * Validation of package syntax 
 # * Account/Project verification 
 # * SIP descriptor validation (after retriving files needed for validation from the XML resolution service)
-# * Get external events and agents from descriptor, place non-duplicated events in PREMIS container
 # * Look for and record any undescribed files
 # * Virus check described files
 # * Verify checksums for described files
@@ -223,14 +222,14 @@ class PackageValidator
         when Configuration.instance.values["virus_exit_status_clean"]
           @result["virus_check"][package_path] = {}
 
-          @result["virus_check"][package_path]["outcome"] = "passed"
+          @result["virus_check"][package_path]["outcome"] = "success"
           @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.values["virus_checker_executable"]
 
           # virus found
         when Configuration.instance.values["virus_exit_status_infected"]
           @result["virus_check"][package_path] = {}
 
-          @result["virus_check"][package_path]["outcome"] = "failed"
+          @result["virus_check"][package_path]["outcome"] = "failure"
           @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.values["virus_checker_executable"]
 
           if summary['STDOUT'] != nil
@@ -299,36 +298,37 @@ class PackageValidator
       # check to see that the file exists, report accordingly
       if File.exists? file_path
         @result["checksum_check"][flocat_node_attributes["href"]]["file_exists"] = "success"
+
+        # if a described checksum is present in descriptor, compute the checksum for the file.
+        # Otherwise, set variable computed_checksum == described_checksum == nil so that equality test in next statement passes
+        if described_checksum
+          computed_checksum = compute_file_checksum file_path
+        else
+          computed_checksum = described_checksum
+        end
+
+        if computed_checksum.upcase == described_checksum.upcase
+          @result["checksum_check"][flocat_node_attributes["href"]]["checksum_match"] = "success"
+        else
+          @result["checksum_check"][flocat_node_attributes["href"]]["checksum_match"] = "failure"
+          @result["checksum_check"][flocat_node_attributes["href"]]["described"] = described_checksum.upcase
+          @result["checksum_check"][flocat_node_attributes["href"]]["computed"] = computed_checksum.upcase
+
+          all_ok = false
+        end
       else
         @result["checksum_check"][flocat_node_attributes["href"]]["file_exists"] = "failure"
 
         all_ok = false
       end
 
-      # if a described checksum is present in descriptor, compute the checksum for the file.
-      # Otherwise, set variable computed_checksum == described_checksum == nil so that equality test in next statement passes
-      if described_checksum
-        computed_checksum = compute_file_checksum file_path
-      else
-        computed_checksum = described_checksum
-      end
-
-      if computed_checksum.upcase == described_checksum.upcase
-        @result["checksum_check"][flocat_node_attributes["href"]]["checksum_match"] = "success"
-      else
-        @result["checksum_check"][flocat_node_attributes["href"]]["checksum_match"] = "failure"
-        @result["checksum_check"][flocat_node_attributes["href"]]["described"] = described_checksum.upcase
-        @result["checksum_check"][flocat_node_attributes["href"]]["computed"] = computed_checksum.upcase
-
-        all_ok = false
-      end
     end # of loop
 
     return all_ok
   end
 
   # returns the MD5 checksum of file. Raises exception if checksum cannot be calculated
-  
+
   def compute_file_checksum path_to_file
     raise StandardError, "File at path does not exist" unless File.exists? path_to_file
     raise StandardError, "Path provided does not refer to a file" unless File.file? path_to_file
