@@ -6,12 +6,12 @@ require 'package_validator'
 
 # if we want to rack multiple sinatras up we need to have them separate
 class Validation < Sinatra::Default
-
+  
   # Expects a query parameter named location to be a cgi escaped uri
   # of a package. Currently only file urls are supported.
   # Returns 400 if there is a problem with the URI.
   get '/' do
-
+    
     # make sure location exists
     halt 400, "Missing parameter: location" unless params[:location]
 
@@ -30,7 +30,6 @@ class Validation < Sinatra::Default
     validator = PackageValidator.new
     @result = validator.validate_package url.path
     erb :report
-
   end
 
 end
