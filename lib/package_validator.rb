@@ -10,9 +10,18 @@ require 'configuration'
 # Author: Manny Rodriguez
 #
 # --------------------------
-# The PackageValidator class encapsulates package validation tasks
+# The PackageValidator class validates a package and returns a hash with the results.
 #
-# These tasks include: Validation of package syntax, SIP descriptor validation, File checksum validation, virus check, account/project validation. Returns a data structure containing validation results.
+# The validation tasks are, in order: 
+# * Validation of package syntax 
+# * Account/Project verification 
+# * SIP descriptor validation (after retriving files needed for validation from the XML resolution service)
+# * Get external events and agents from descriptor, place non-duplicated events in PREMIS container
+# * Look for and record any undescribed files
+# * Virus check described files
+# * Verify checksums for described files
+#
+# Returns a hash containing validation results.
 #
 # SAMPLE USAGE:
 #
@@ -193,7 +202,7 @@ class PackageValidator
   end
 
   # runs a virus check on the package
-  # Iterates over all files in package, calling Configuration.virus_checker_executable for each one
+  # Iterates over all files in package, calling Configuration.instance.values["virus_checker_executable"] for each one
   # returns true if all clean, false otherwise
   
   def virus_check
@@ -203,7 +212,7 @@ class PackageValidator
 
     @package_paths_array.each do |path|
       if File.file? path
-        summary = Executor.execute_return_summary "#{Configuration.instance.virus_checker_executable} #{path}"
+        summary = Executor.execute_return_summary "#{Configuration.instance.values["virus_checker_executable"]} #{path}"
         package_path = path.gsub(@package_paths_array[0] + "/", "")
 
         # inspect the exit status of the virus checker to see what the result is for this file
@@ -211,18 +220,18 @@ class PackageValidator
         case summary["exit_status"]
 
           # success
-        when Configuration.instance.virus_exit_status_clean
+        when Configuration.instance.values["virus_exit_status_clean"]
           @result["virus_check"][package_path] = {}
 
           @result["virus_check"][package_path]["outcome"] = "passed"
-          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
+          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.values["virus_checker_executable"]
 
           # virus found
-        when Configuration.instance.virus_exit_status_infected
+        when Configuration.instance.values["virus_exit_status_infected"]
           @result["virus_check"][package_path] = {}
 
           @result["virus_check"][package_path]["outcome"] = "failed"
-          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
+          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.values["virus_checker_executable"]
 
           if summary['STDOUT'] != nil
             @result["virus_check"][package_path]["STDOUT"] = summary['STDOUT']
@@ -243,7 +252,7 @@ class PackageValidator
           @result["virus_check"][package_path] = {}
 
           @result["virus_check"][package_path]["outcome"] = "indeterminate"
-          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.virus_checker_executable
+          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.values["virus_checker_executable"]
 
           if summary['STDOUT'] != nil
             @result["virus_check"][package_path]["STDOUT"] = summary['STDOUT']
