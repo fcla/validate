@@ -45,6 +45,7 @@ class PackageValidator
       validate_package_syntax path_to_package
       validate_descriptor
       validate_account_project
+      # find undescribed files here
       virus_check_clean = virus_check
       checksums_match = validate_checksums
 
