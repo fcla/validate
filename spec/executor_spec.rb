@@ -8,7 +8,6 @@ describe Executor do
     stdout.should == "foo\n"
   end
 
-
   it "execute_expect_zero should raise ExecutionError if exit status is non-zero" do
     lambda { Executor.execute_expect_zero "/usr/bin/false" }.should raise_error(ExecutionError)
   end
