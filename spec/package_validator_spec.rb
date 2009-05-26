@@ -242,7 +242,6 @@ describe PackageValidator do
 
  it "should fail checksum check if described checksum does not match computed checksum" do
     hash = @validator.validate_package CHECKSUM_MISMATCH
-    pp hash
 
     hash["outcome"].should == "failure"
 

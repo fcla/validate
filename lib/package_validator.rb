@@ -163,11 +163,14 @@ class PackageValidator
   # takes a node syntax_report_node, and path to package
   # on success, adds appropriate values to hash
   # on failure, adds appropriate values to hash and raises exception
+  # ignores files with .svn in their path
 
   def validate_syntax_content_file_present path_to_package
     content_file_found = false
 
     @package_paths_array.each do |path|
+      next if path =~ /.svn/
+
       next if path == @descriptor_path
       content_file_found = true if File.file? path
       break if content_file_found == true
@@ -203,6 +206,7 @@ class PackageValidator
   # runs a virus check on the package
   # Iterates over all files in package, calling Configuration.instance.values["virus_checker_executable"] for each one
   # returns true if all clean, false otherwise
+  # ignores files with .svn in the path
   
   def virus_check
     @result["virus_check"] = {}
@@ -210,6 +214,8 @@ class PackageValidator
     all_ok = true
 
     @package_paths_array.each do |path|
+      next if path =~ /.svn/
+
       if File.file? path
         summary = Executor.execute_return_summary "#{Configuration.instance.values["virus_checker_executable"]} #{path}"
         package_path = path.gsub(@package_paths_array[0] + "/", "")
