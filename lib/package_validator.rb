@@ -36,6 +36,7 @@ class PackageValidator
 
   def initialize
     @package_paths_array = []
+    @described_files_array = []
     @descriptor_path = ""
     @descriptor_document
     @result = {}
@@ -53,7 +54,7 @@ class PackageValidator
       validate_package_syntax path_to_package
       validate_descriptor
       validate_account_project
-      # find undescribed files here
+      find_undescribed_files
       virus_check_clean = virus_check
       checksums_match = validate_checksums
 
@@ -203,22 +204,75 @@ class PackageValidator
     @descriptor_document = LibXML::XML::Document.file @descriptor_path
   end
 
+  # parses described file URLs from descriptor. Returns an array of hashes of the form:
+  # A[1][file] = path of described file 1
+  # A[1][checksum] = described checksum for file 1
+  # A[2][path] = path of described file 2
+  # A[2][checksum] = described checksum for file 2
+  # ...
+  
+  def get_described_file_list_from_descriptor
+    file_nodes = @descriptor_document.find('//METS:file').to_a
+
+    file_nodes.each do |file_node|
+      file_node_attributes = file_node.attributes
+
+      flocat_node = file_node.child
+      flocat_node_attributes = flocat_node.attributes
+
+      file_path = flocat_node_attributes["href"]
+      described_checksum = file_node_attributes["CHECKSUM"]
+
+      hash = {"path" => file_path, "checksum" => described_checksum}
+      @described_files_array.push hash
+    end
+  end
+
+  # iterates through @package_paths_array, searching @described_files_array for each element.
+  # Any element in @package_paths_array that is not present in @described_files_array is recorded in @result
+  # Files containing .svn in their path will be ignored
+  # The descriptor does not count as an undescribed file
+  # Directories do not count as undescribed files
+  
+  def find_undescribed_files
+    get_described_file_list_from_descriptor
+
+    @result["undescribed_files"] = []
+
+    @package_paths_array.each do |path|
+      next if path =~ /.svn/ # ignore files in svn
+      next if path == @descriptor_path # ignore the descriptor
+      next if path == @package_paths_array[0] #ignore the basedir
+
+      rel_path = path.gsub(@package_paths_array[0] + "/", "")
+
+      described = false
+
+      @described_files_array.each do |described_file_hash|
+        described = true if rel_path == described_file_hash["path"]
+      end
+
+      if not described and File.file?(path)
+        @result["undescribed_files"].push rel_path
+      end
+    end
+  end
+
   # runs a virus check on the package
-  # Iterates over all files in package, calling Configuration.instance.values["virus_checker_executable"] for each one
+  # Iterates over all described files in package, calling Configuration.instance.values["virus_checker_executable"] for each one
   # returns true if all clean, false otherwise
-  # ignores files with .svn in the path
   
   def virus_check
     @result["virus_check"] = {}
 
     all_ok = true
 
-    @package_paths_array.each do |path|
-      next if path =~ /.svn/
+    @described_files_array.each do |described_file_hash|
+      package_path = described_file_hash["path"]
+      full_path = File.join @package_paths_array[0], package_path
 
-      if File.file? path
-        summary = Executor.execute_return_summary "#{Configuration.instance.values["virus_checker_executable"]} #{path}"
-        package_path = path.gsub(@package_paths_array[0] + "/", "")
+      if File.file? full_path
+        summary = Executor.execute_return_summary "#{Configuration.instance.values["virus_checker_executable"]} #{full_path}"
 
         # inspect the exit status of the virus checker to see what the result is for this file
 
@@ -287,47 +341,38 @@ class PackageValidator
     @result["checksum_check"] = {}
     all_ok = true
 
-    file_nodes = @descriptor_document.find('//METS:file').to_a
+    # iterate through all described files
+    @described_files_array.each do |described_file_hash|
+      package_path = described_file_hash["path"]
+      described_checksum = described_file_hash["checksum"]
+      full_path = File.join @package_paths_array[0], package_path
 
-    # iterate through all the file nodes, ensuring that all described files are present, and checksums match (if provided in descriptor)
-    file_nodes.each do |file_node|
-      file_node_attributes = file_node.attributes
-
-      flocat_node = file_node.child
-      flocat_node_attributes = flocat_node.attributes
-
-      file_path = File.join @package_paths_array[0], flocat_node_attributes["href"]
-      described_checksum = file_node_attributes["CHECKSUM"]
-
-      @result["checksum_check"][flocat_node_attributes["href"]] = {}
+      @result["checksum_check"][package_path] = {}
 
       # check to see that the file exists, report accordingly
-      if File.exists? file_path
-        @result["checksum_check"][flocat_node_attributes["href"]]["file_exists"] = "success"
+      if File.exists? full_path
+        @result["checksum_check"][package_path]["file_exists"] = "success"
 
         # if a described checksum is present in descriptor, compute the checksum for the file.
         # Otherwise, set variable computed_checksum == described_checksum == nil so that equality test in next statement passes
         if described_checksum
-          computed_checksum = compute_file_checksum file_path
-        else
-          computed_checksum = described_checksum
-        end
+          computed_checksum = compute_file_checksum full_path
 
-        if computed_checksum.upcase == described_checksum.upcase
-          @result["checksum_check"][flocat_node_attributes["href"]]["checksum_match"] = "success"
-        else
-          @result["checksum_check"][flocat_node_attributes["href"]]["checksum_match"] = "failure"
-          @result["checksum_check"][flocat_node_attributes["href"]]["described"] = described_checksum.upcase
-          @result["checksum_check"][flocat_node_attributes["href"]]["computed"] = computed_checksum.upcase
+          if computed_checksum.upcase == described_checksum.upcase
+            @result["checksum_check"][package_path]["checksum_match"] = "success"
+          else
+            @result["checksum_check"][package_path]["checksum_match"] = "failure"
+            @result["checksum_check"][package_path]["described"] = described_checksum.upcase
+            @result["checksum_check"][package_path]["computed"] = computed_checksum.upcase
 
-          all_ok = false
+            all_ok = false
+          end
         end
       else
-        @result["checksum_check"][flocat_node_attributes["href"]]["file_exists"] = "failure"
+        @result["checksum_check"][package_path]["file_exists"] = "failure"
 
         all_ok = false
       end
-
     end # of loop
 
     return all_ok

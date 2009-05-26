@@ -15,6 +15,9 @@ describe PackageValidator do
   NO_CONTENT_FILES = "spec/SamplePackages/FDA0000003"
   FILE_REFERENCED_BUT_MISSING = "spec/SamplePackages/FDA0000004"
   CHECKSUM_MISMATCH = "spec/SamplePackages/FDA0000005"
+  UNDESCRIBED_FILES_PRESENT = "spec/SamplePackages/FDA0000006"
+  NO_DESCRIBED_CHECKSUMS = "spec/SamplePackages/FDA0000007"
+  CONTAINS_SUBDIRECTORIES = "spec/SamplePackages/FDA0000008"
 
   before(:each) do
     @validator = PackageValidator.new
@@ -41,10 +44,11 @@ describe PackageValidator do
 
     # TODO: account/project verification not yet implemented"
     # TODO: descriptor validation not yet implemented 
-    # TODO: undescribed file check not yet implemented"
+    
+    # undescribed file check
+    hash["undescribed_files"].length.should == 0
 
     # virus check
-    hash["virus_check"]["FDA0000001.xml"]["outcome"].should == "success"
     hash["virus_check"]["daitss.jpg"]["outcome"].should == "success"
     hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
 
@@ -71,14 +75,11 @@ describe PackageValidator do
 
     # TODO: account/project verification not yet implemented"
     # TODO: descriptor validation not yet implemented 
-    # TODO: undescribed file check not yet implemented"
+
+    # undescribed file check
+    hash["undescribed_files"].length.should == 0
 
     # virus check
-    hash["virus_check"]["FDA0000001.xml"]["outcome"].should == "failure"
-    hash["virus_check"]["FDA0000001.xml"]["STDOUT"].should == "foo\n"
-    hash["virus_check"]["FDA0000001.xml"]["STDERR"].should == "bar\n"
-    hash["virus_check"]["FDA0000001.xml"]["virus_checker_executable"].should == "echo foo; echo bar 1>&2; /usr/bin/false"
-
     hash["virus_check"]["daitss.jpg"]["outcome"].should == "failure"
     hash["virus_check"]["daitss.jpg"]["STDOUT"].should == "foo\n"
     hash["virus_check"]["daitss.jpg"]["STDERR"].should == "bar\n"
@@ -111,7 +112,9 @@ describe PackageValidator do
 
     # TODO: account/project verification not yet implemented"
     # TODO: descriptor validation not yet implemented 
-    # TODO: undescribed file check not yet implemented"
+
+    # undescribed file check
+    hash["undescribed_files"].should == nil
 
     # virus check
     hash["virus_check"].should == nil
@@ -134,7 +137,9 @@ describe PackageValidator do
 
     # TODO: account/project verification not yet implemented"
     # TODO: descriptor validation not yet implemented 
-    # TODO: undescribed file check not yet implemented"
+
+    # undescribed file check
+    hash["undescribed_files"].should == nil
 
     # virus check
     hash["virus_check"].should == nil
@@ -157,7 +162,9 @@ describe PackageValidator do
 
     # TODO: account/project verification not yet implemented"
     # TODO: descriptor validation not yet implemented 
-    # TODO: undescribed file check not yet implemented"
+
+    # undescribed file check
+    hash["undescribed_files"].should == nil
 
     # virus check
     hash["virus_check"].should == nil
@@ -180,7 +187,9 @@ describe PackageValidator do
 
     # TODO: account/project verification not yet implemented"
     # TODO: descriptor validation not yet implemented 
-    # TODO: undescribed file check not yet implemented"
+
+    # undescribed file check
+    hash["undescribed_files"].should == nil
 
     # virus check
     hash["virus_check"].should == nil
@@ -203,7 +212,9 @@ describe PackageValidator do
 
     # TODO: account/project verification not yet implemented"
     # TODO: descriptor validation not yet implemented 
-    # TODO: undescribed file check not yet implemented"
+
+    # undescribed file check
+    hash["undescribed_files"].should == nil
 
     # virus check
     hash["virus_check"].should == nil
@@ -226,10 +237,11 @@ describe PackageValidator do
 
     # TODO: account/project verification not yet implemented"
     # TODO: descriptor validation not yet implemented 
-    # TODO: undescribed file check not yet implemented"
+
+    # undescribed file check
+    hash["undescribed_files"].length.should == 0
 
     # virus check
-    hash["virus_check"]["FDA0000004.xml"]["outcome"].should == "success"
     hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
 
     # checksum check
@@ -254,10 +266,11 @@ describe PackageValidator do
 
     # TODO: account/project verification not yet implemented"
     # TODO: descriptor validation not yet implemented 
-    # TODO: undescribed file check not yet implemented"
+
+    # undescribed file check
+    hash["undescribed_files"].length.should == 0
 
     # virus check
-    hash["virus_check"]["FDA0000005.xml"]["outcome"].should == "success"
     hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
 
     # checksum check
@@ -270,4 +283,99 @@ describe PackageValidator do
     hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
   end
 
+ it "should report, and subsequently ignore, undescribed files" do
+    hash = @validator.validate_package UNDESCRIBED_FILES_PRESENT
+
+    hash["outcome"].should == "success"
+
+    # package syntax checks
+
+    hash["syntax"]["descriptor_found"].should == "success"
+    hash["syntax"]["descriptor_is_file"].should == "success"
+    hash["syntax"]["content_file_found"].should == "success"
+    hash["syntax"]["package_is_directory"].should == "success"
+
+    # TODO: account/project verification not yet implemented"
+    # TODO: descriptor validation not yet implemented 
+    
+    # undescribed file check
+    hash["undescribed_files"].length.should == 2
+    hash["undescribed_files"][0].should == "foo"
+    hash["undescribed_files"][1].should == "bar"
+
+    # virus check
+    hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
+
+    # checksum check
+    hash["checksum_check"]["daitss.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["diamondlogo.jpg"]["checksum_match"].should == "success"
+
+    hash["checksum_check"]["daitss.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
+ 
+    # records for undescribed files foo and bar should not exist
+    hash["virus_check"]["foo"].should == nil
+    hash["virus_check"]["bar"].should == nil
+
+    hash["checksum_check"]["foo"].should == nil
+    hash["checksum_check"]["bar"].should == nil
+  end
+
+  it "should validate NO_DESCRIBED_CHECKSUMS package, and reflect all checks passed" do
+    hash = @validator.validate_package NO_DESCRIBED_CHECKSUMS
+
+    hash["outcome"].should == "success"
+
+    # package syntax checks
+    hash["syntax"]["descriptor_found"].should == "success"
+    hash["syntax"]["descriptor_is_file"].should == "success"
+    hash["syntax"]["content_file_found"].should == "success"
+    hash["syntax"]["package_is_directory"].should == "success"
+
+    # TODO: account/project verification not yet implemented"
+    # TODO: descriptor validation not yet implemented 
+    
+    # undescribed file check
+    hash["undescribed_files"].length.should == 0
+
+    # virus check
+    hash["virus_check"]["daitss.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
+
+    # checksum check
+    hash["checksum_check"]["daitss.jpg"]["checksum_match"].should == nil
+    hash["checksum_check"]["diamondlogo.jpg"]["checksum_match"].should == nil
+
+    hash["checksum_check"]["daitss.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
+  end
+
+  it "should validate CONTAINS_SUBDIRECTORIES package, and reflect all checks passed" do
+    hash = @validator.validate_package CONTAINS_SUBDIRECTORIES
+
+    hash["outcome"].should == "success"
+
+    # package syntax checks
+    hash["syntax"]["descriptor_found"].should == "success"
+    hash["syntax"]["descriptor_is_file"].should == "success"
+    hash["syntax"]["content_file_found"].should == "success"
+    hash["syntax"]["package_is_directory"].should == "success"
+
+    # TODO: account/project verification not yet implemented"
+    # TODO: descriptor validation not yet implemented 
+    
+    # undescribed file check
+    hash["undescribed_files"].length.should == 0
+
+    # virus check
+    hash["virus_check"]["foo/daitss.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
+
+    # checksum check
+    hash["checksum_check"]["foo/daitss.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["diamondlogo.jpg"]["checksum_match"].should == "success"
+
+    hash["checksum_check"]["foo/daitss.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
+  end
 end
