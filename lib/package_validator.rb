@@ -36,6 +36,7 @@ class PackageValidator
 
   def initialize
     @package_paths_array = []
+    @package_name = ""
     @described_files_array = []
     @descriptor_path = ""
     @descriptor_document
@@ -51,6 +52,12 @@ class PackageValidator
   
   def validate_package(path_to_package)
     begin
+
+      @result['path_to_aip'] = path_to_package
+      @package_name = File.basename path_to_package
+
+      path_to_package = File.join(path_to_package, "files")
+
       validate_package_syntax path_to_package
       validate_descriptor
       validate_account_project
@@ -126,16 +133,14 @@ class PackageValidator
       @package_paths_array.push stuff
     end
 
-    package_basename = File.basename @package_paths_array[0]
-
     # the value at index 0 is always the directory name, so we look for a file named package_file_array[0].xml
-    if @package_paths_array.include? "#{@package_paths_array[0]}/#{package_basename}.xml"
-      @descriptor_path = "#{@package_paths_array[0]}/#{package_basename}.xml"
+    if @package_paths_array.include? "#{@package_paths_array[0]}/#{@package_name}.xml"
+      @descriptor_path = "#{@package_paths_array[0]}/#{@package_name}.xml"
       @result["syntax"]["descriptor_found"] = "success"
 
       # if we didn't find PACKAGE_NAME.xml, there is still the possibility we have PACAKGE_NAME.XML
-    elsif @package_paths_array.include? "#{@package_paths_array[0]}/#{package_basename}.XML"
-      @descriptor_path = "#{@package_paths_array[0]}/#{package_basename}.XML"
+    elsif @package_paths_array.include? "#{@package_paths_array[0]}/#{@package_name}.XML"
+      @descriptor_path = "#{@package_paths_array[0]}/#{@package_name}.XML"
       @result["syntax"]["descriptor_found"] = "success"
 
     else
@@ -220,11 +225,13 @@ class PackageValidator
   end
 
   # parses described file URLs from descriptor. Returns an array of hashes of the form:
+  #
   # A[1][file] = path of described file 1
   # A[1][checksum] = described checksum for file 1
   # A[2][path] = path of described file 2
   # A[2][checksum] = described checksum for file 2
   # ...
+  # records relative paths to described files in @result 
   
   def get_described_file_list_from_descriptor
     file_nodes = @descriptor_document.find('//METS:file').to_a
@@ -240,6 +247,7 @@ class PackageValidator
 
       hash = {"path" => file_path, "checksum" => described_checksum}
       @described_files_array.push hash
+
     end
   end
 
