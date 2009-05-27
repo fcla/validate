@@ -105,6 +105,7 @@ class PackageValidator
     @result["syntax"] = {}
 
     validate_syntax_path_is_dir(path_to_package)
+    map_package path_to_package
     validate_syntax_descriptor_exists(path_to_package)
     validate_syntax_descriptor_is_file(path_to_package)
     validate_syntax_content_file_present(path_to_package)
@@ -123,15 +124,36 @@ class PackageValidator
     end
   end
 
+  # looks through package, adding all files in package to array and result hash
+  # files with .svn in their path will be ignored
+  # files will be recorded in @package_paths_array as full paths
+  # files will be recorded in @package_paths_array as relative to AIP
+
+  def map_package path_to_package
+    @result["files_in_package"] = []
+
+    Find.find(path_to_package) do |stuff|
+
+      # TODO: not sure if we want to deal with svn files this way
+      next if stuff =~ /.svn/ # ignore files in svn
+
+      @package_paths_array.push stuff
+    end
+
+    # iterate over files in array just created to put relative path version in hash
+    @package_paths_array.each do |path|
+
+      rel_path = path.gsub(@package_paths_array[0], "files")
+      @result["files_in_package"].push rel_path if File.file? path
+    end
+  end
+
   # checks that a descriptor of form PACKAGE_NAME.xml/XML exists
   # on success, adds appropriate values to hash
   # on failure, adds appropriate values to hash and raises exception
 
+
   def validate_syntax_descriptor_exists path_to_package
-    # get a list of the files therein and put it into an array
-    Find.find(path_to_package) do |stuff|
-      @package_paths_array.push stuff
-    end
 
     # the value at index 0 is always the directory name, so we look for a file named package_file_array[0].xml
     if @package_paths_array.include? "#{@package_paths_array[0]}/#{@package_name}.xml"
@@ -165,14 +187,11 @@ class PackageValidator
   # checks that at least one content file is present in the package
   # on success, adds appropriate values to hash
   # on failure, adds appropriate values to hash and raises exception
-  # ignores files with .svn in their path
 
   def validate_syntax_content_file_present path_to_package
     content_file_found = false
 
     @package_paths_array.each do |path|
-      # TODO: not sure if we really want to deal with .svn files this way
-      next if path =~ /.svn/
 
       next if path == @descriptor_path
       content_file_found = true if File.file? path
@@ -253,7 +272,6 @@ class PackageValidator
 
   # iterates through @package_paths_array, searching @described_files_array for each element.
   # Any element in @package_paths_array that is not present in @described_files_array is recorded in @result
-  # Files containing .svn in their path will be ignored
   # The descriptor does not count as an undescribed file
   # Directories do not count as undescribed files
   
@@ -263,8 +281,6 @@ class PackageValidator
     @result["undescribed_files"] = []
 
     @package_paths_array.each do |path|
-      # TODO: not sure if we want to deal with svn files this way
-      next if path =~ /.svn/ # ignore files in svn
       next if path == @descriptor_path # ignore the descriptor
       next if path == @package_paths_array[0] #ignore the basedir
 
