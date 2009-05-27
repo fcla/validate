@@ -12,7 +12,7 @@ describe PackageValidator do
   ALL_OK_PACKAGE = "spec/SamplePackages/FDA0000001"
   DOES_NOT_EXIST_ON_FILESYSTEM = "foobar"
   NOT_A_DIRECTORY_ON_FILESYSTEM = "Rakefile"
-  DOES_NOT_CONTAIN_DESCRIPTOR = "lib"
+  DOES_NOT_CONTAIN_DESCRIPTOR = "spec/SamplePackages/FDA0000011"
   DESCRIPTOR_IS_NOT_FILE = "spec/SamplePackages/FDA0000002"
   NO_CONTENT_FILES = "spec/SamplePackages/FDA0000003"
   FILE_REFERENCED_BUT_MISSING = "spec/SamplePackages/FDA0000004"
