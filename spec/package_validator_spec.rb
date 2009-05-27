@@ -7,6 +7,8 @@ require 'digest/md5'
 describe PackageValidator do
 
 
+  # TODO: add checks for path_to_package and described file paths in return hash
+  
   ALL_OK_PACKAGE = "spec/SamplePackages/FDA0000001"
   DOES_NOT_EXIST_ON_FILESYSTEM = "foobar"
   NOT_A_DIRECTORY_ON_FILESYSTEM = "Rakefile"
