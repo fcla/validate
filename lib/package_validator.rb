@@ -45,9 +45,9 @@ class PackageValidator
     LibXML::XML.default_keep_blanks = false
   end
 
-  # runs all validation tasks on a package, building an XML report as the validation progresses.
-  # report is returned after validation completes.
-  # if a failure prevents the running of all checks, a report containing all checks performed is returned
+  # runs all validation tasks on a package, building a hash @result as the validation progresses.
+  # hash is returned after validation completes.
+  # if a failure prevents the running of all checks, a partial hash containing all checks performed is returned
   
   def validate_package(path_to_package)
     begin
@@ -104,7 +104,6 @@ class PackageValidator
   end
 
   # checks that path to package specified is a directory
-  # takes a node syntax_report_node, and path to package
   # on success, adds appropriate values to hash
   # on failure, adds appropriate values to hash and raises exception
 
@@ -118,7 +117,6 @@ class PackageValidator
   end
 
   # checks that a descriptor of form PACKAGE_NAME.xml/XML exists
-  # takes a node syntax_report_node, and path to package
   # on success, adds appropriate values to hash
   # on failure, adds appropriate values to hash and raises exception
 
@@ -147,7 +145,6 @@ class PackageValidator
   end
 
   # checks that descriptor is a file
-  # takes a node syntax_report_node, and path to package
   # on success, adds appropriate values to hash
   # on failure, adds appropriate values to hash and raises exception
 
@@ -161,7 +158,6 @@ class PackageValidator
   end
 
   # checks that at least one content file is present in the package
-  # takes a node syntax_report_node, and path to package
   # on success, adds appropriate values to hash
   # on failure, adds appropriate values to hash and raises exception
   # ignores files with .svn in their path
@@ -170,6 +166,7 @@ class PackageValidator
     content_file_found = false
 
     @package_paths_array.each do |path|
+      # TODO: not sure if we really want to deal with .svn files this way
       next if path =~ /.svn/
 
       next if path == @descriptor_path
@@ -194,14 +191,32 @@ class PackageValidator
     @result["account_project_validation"]["account_project_valid"] = "test_not_implemented"
   end
 
-  # passes descriptor to XML validation service
-  # TODO: implement, once we have an XML validation service
+  # validates package descriptor with external Java validator.
+  # if descriptor fails validation, exception is raised and processing stops.
+  # Any errors arising from validation will be recorded in @result
+
   def validate_descriptor
     @result["descriptor_validation"] = {}
-    @result["descriptor_validation"]["descriptor_valid"] = "test_not_implemented"
 
-    # for now, we have to assume the descriptor is valid
-    @descriptor_document = LibXML::XML::Document.file @descriptor_path
+    # execute validator on descriptor
+    validation_output = `#{Configuration.instance.values["xml_validator_executable"]} #{@descriptor_path}`
+
+    if validation_output =~ /Errors: 0\n(.*?)Fatal Errors: 0\n.*?/m
+      @result["descriptor_validation"]["descriptor_valid"] = "success"
+      @descriptor_document = LibXML::XML::Document.file @descriptor_path
+    else
+      @result["descriptor_validation"]["descriptor_valid"] = "failure"
+      @result["descriptor_validation"]["validator_output"] = []
+
+      # if the line in the output begins with a number, add it
+      validation_output.split("\n").each do |line|
+        if line =~ /^\d+/
+          @result["descriptor_validation"]["validator_output"].push line
+        end
+      end
+
+      raise StandardError, "Descriptor did not validate"
+    end
   end
 
   # parses described file URLs from descriptor. Returns an array of hashes of the form:
@@ -240,6 +255,7 @@ class PackageValidator
     @result["undescribed_files"] = []
 
     @package_paths_array.each do |path|
+      # TODO: not sure if we want to deal with svn files this way
       next if path =~ /.svn/ # ignore files in svn
       next if path == @descriptor_path # ignore the descriptor
       next if path == @package_paths_array[0] #ignore the basedir

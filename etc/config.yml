@@ -4,3 +4,6 @@
 virus_checker_executable: /usr/bin/true
 virus_exit_status_infected: 1
 virus_exit_status_clean: 0
+
+# validation
+xml_validator_executable: /Users/manny/workspace/validator/validate 2>&1
