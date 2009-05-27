@@ -18,6 +18,8 @@ describe PackageValidator do
   UNDESCRIBED_FILES_PRESENT = "spec/SamplePackages/FDA0000006"
   NO_DESCRIBED_CHECKSUMS = "spec/SamplePackages/FDA0000007"
   CONTAINS_SUBDIRECTORIES = "spec/SamplePackages/FDA0000008"
+  INVALID_DESCRIPTOR = "spec/SamplePackages/FDA0000009"
+  NOT_WELL_FORMED_DESCRIPTOR = "spec/SamplePackages/FDA0000010"
 
   before(:each) do
     @validator = PackageValidator.new
@@ -28,7 +30,8 @@ describe PackageValidator do
   def virus_found_hash
     {"virus_checker_executable" => "echo foo; echo bar 1>&2; /usr/bin/false",
      "virus_exit_status_infected" => 1,
-     "virus_exit_status_clean" => 0}
+     "virus_exit_status_clean" => 0,
+     "xml_validator_executable" => "/Users/manny/workspace/validator/validate 2>&1"}
   end
 
   it "should validate ALL_OK package, and reflect all checks passed" do
@@ -43,8 +46,10 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "success"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
     
+    # descriptor should be valid
+    hash["descriptor_validation"]["descriptor_valid"].should == "success"
+
     # undescribed file check
     hash["undescribed_files"].length.should == 0
 
@@ -74,7 +79,9 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "success"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
+
+    # descriptor should be valid
+    hash["descriptor_validation"]["descriptor_valid"].should == "success"
 
     # undescribed file check
     hash["undescribed_files"].length.should == 0
@@ -111,7 +118,9 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "failure"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
+
+    # descriptor check
+    hash["descriptor_validation"].should == nil
 
     # undescribed file check
     hash["undescribed_files"].should == nil
@@ -136,7 +145,9 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "failure"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
+
+    # descriptor check
+    hash["descriptor_validation"].should == nil
 
     # undescribed file check
     hash["undescribed_files"].should == nil
@@ -161,7 +172,9 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "success"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
+
+    # descriptor check
+    hash["descriptor_validation"].should == nil
 
     # undescribed file check
     hash["undescribed_files"].should == nil
@@ -186,7 +199,9 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "success"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
+
+    # descriptor check
+    hash["descriptor_validation"].should == nil
 
     # undescribed file check
     hash["undescribed_files"].should == nil
@@ -211,7 +226,9 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "success"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
+
+    # descriptor check
+    hash["descriptor_validation"].should == nil
 
     # undescribed file check
     hash["undescribed_files"].should == nil
@@ -236,7 +253,9 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "success"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
+
+    # descriptor should be valid
+    hash["descriptor_validation"]["descriptor_valid"].should == "success"
 
     # undescribed file check
     hash["undescribed_files"].length.should == 0
@@ -265,7 +284,9 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "success"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
+
+    # descriptor should be valid
+    hash["descriptor_validation"]["descriptor_valid"].should == "success"
 
     # undescribed file check
     hash["undescribed_files"].length.should == 0
@@ -296,8 +317,10 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "success"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
     
+    # descriptor should be valid
+    hash["descriptor_validation"]["descriptor_valid"].should == "success"
+
     # undescribed file check
     hash["undescribed_files"].length.should == 2
     hash["undescribed_files"][0].should == "foo"
@@ -333,8 +356,10 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "success"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
     
+    # descriptor should be valid
+    hash["descriptor_validation"]["descriptor_valid"].should == "success"
+
     # undescribed file check
     hash["undescribed_files"].length.should == 0
 
@@ -362,8 +387,10 @@ describe PackageValidator do
     hash["syntax"]["package_is_directory"].should == "success"
 
     # TODO: account/project verification not yet implemented"
-    # TODO: descriptor validation not yet implemented 
     
+    # descriptor should be valid
+    hash["descriptor_validation"]["descriptor_valid"].should == "success"
+
     # undescribed file check
     hash["undescribed_files"].length.should == 0
 
@@ -377,5 +404,57 @@ describe PackageValidator do
 
     hash["checksum_check"]["foo/daitss.jpg"]["file_exists"].should == "success"
     hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
+  end
+
+  it "should report an invalid descriptor" do
+    hash = @validator.validate_package INVALID_DESCRIPTOR
+
+    hash["outcome"].should == "failure"
+
+    # package syntax checks
+    hash["syntax"]["descriptor_found"].should == "success"
+    hash["syntax"]["descriptor_is_file"].should == "success"
+    hash["syntax"]["content_file_found"].should == "success"
+    hash["syntax"]["package_is_directory"].should == "success"
+
+    # TODO: account/project verification not yet implemented"
+    
+    # descriptor should be invalid
+    hash["descriptor_validation"]["descriptor_valid"].should == "failure"
+
+    # undescribed file check
+    hash["undescribed_files"].should == nil 
+
+    # virus check
+    hash["virus_check"].should == nil
+
+    # checksum check
+    hash["checksum_check"].should == nil
+  end
+
+  it "should report a not well formed descriptor" do
+    hash = @validator.validate_package NOT_WELL_FORMED_DESCRIPTOR
+
+    hash["outcome"].should == "failure"
+
+    # package syntax checks
+    hash["syntax"]["descriptor_found"].should == "success"
+    hash["syntax"]["descriptor_is_file"].should == "success"
+    hash["syntax"]["content_file_found"].should == "success"
+    hash["syntax"]["package_is_directory"].should == "success"
+
+    # TODO: account/project verification not yet implemented"
+    
+    # descriptor should be invalid
+    hash["descriptor_validation"]["descriptor_valid"].should == "failure"
+
+    # undescribed file check
+    hash["undescribed_files"].should == nil 
+
+    # virus check
+    hash["virus_check"].should == nil
+
+    # checksum check
+    hash["checksum_check"].should == nil
   end
 end
