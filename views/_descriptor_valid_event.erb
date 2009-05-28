@@ -1,15 +1,16 @@
   <event>
     <eventIdentifier>
       <eventIdentifierType>DAITSS</eventIdentifierType>
-        <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
+      <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
     </eventIdentifier>
-    <eventType>SIP passed all validation checks</eventType>
+    <eventType>Descriptor is valid</eventType>
     <eventDateTime><%= Time.now %></eventDateTime>
     <eventOutcomeInformation>
       <eventOutcome>
-        <%= @result['outcome'] %>  
+        <%= @result['descriptor_validation']['descriptor_valid'] %>  
       </eventOutcome>
     </eventOutcomeInformation>
+    <%= erb :_descriptor_event_detail %>
     <linkingAgentIdentifier>
       <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
       <linkingAgentIdentifierValue>http://daitss/validation</linkingAgentIdentifierValue>

@@ -1,13 +1,14 @@
+<% @result['checksum_check'].each do |key, value| %>
   <event>
     <eventIdentifier>
       <eventIdentifierType>DAITSS</eventIdentifierType>
-        <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
+      <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
     </eventIdentifier>
-    <eventType>SIP passed all validation checks</eventType>
+    <eventType>Described File Present</eventType>
     <eventDateTime><%= Time.now %></eventDateTime>
     <eventOutcomeInformation>
       <eventOutcome>
-        <%= @result['outcome'] %>  
+        <%= value['file_exists'] %>  
       </eventOutcome>
     </eventOutcomeInformation>
     <linkingAgentIdentifier>
@@ -17,7 +18,8 @@
     <linkingObjectIdentifier>
       <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
       <linkingObjectIdentifierValue>
-        <%= @result["path_to_aip"] %>
+        <%= key %>
       </linkingObjectIdentifierValue>
     </linkingObjectIdentifier>
   </event>
+<% end %>

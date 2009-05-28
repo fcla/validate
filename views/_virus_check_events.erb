@@ -1,0 +1,33 @@
+<% @result['virus_check'].each do |key, value| %>
+  <event>
+    <eventIdentifier>
+      <eventIdentifierType>DAITSS</eventIdentifierType>
+      <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
+    </eventIdentifier>
+    <eventType>Virus Check</eventType>
+    <eventDateTime><%= Time.now %></eventDateTime>
+    <eventOutcomeInformation>
+      <eventOutcome>
+        <%= value['outcome'] %>  
+      </eventOutcome>
+    </eventOutcomeInformation>
+    <eventOutcomeDetail>
+      <eventOutcomeDetailNote>
+        STDOUT: <%= value["STDOUT"] %>
+      </eventOutcomeDetailNote>
+      <eventOutcomeDetailNote>
+        STDERR: <%= value["STDERR"] %>
+      </eventOutcomeDetailNote>
+    </eventOutcomeDetail>
+    <linkingAgentIdentifier>
+      <linkingAgentIdentifierType>Path to executable</linkingAgentIdentifierType>
+      <linkingAgentIdentifierValue><%= value["virus_checker_executable"] %></linkingAgentIdentifierValue>
+    </linkingAgentIdentifier>
+    <linkingObjectIdentifier>
+      <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+      <linkingObjectIdentifierValue>
+        <%= key %>
+      </linkingObjectIdentifierValue>
+    </linkingObjectIdentifier>
+  </event>
+<% end %>

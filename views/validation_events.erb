@@ -1,4 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <premis xmlns="info:lc/xmlns/premis-v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0">
 <%= erb :_validation_passed_event %>
+
+<% if @result['syntax']['package_is_directory'] %>
+  <%= erb :_package_is_dir_event %>
+<% end %>
+
+<% if @result['syntax']['descriptor_found'] %>
+  <%= erb :_descriptor_found_event %>
+<% end %>
+
+<% if @result['syntax']['descriptor_is_file'] %>
+  <%= erb :_descriptor_is_file_event %>
+<% end %>
+
+<% if @result['syntax']['content_file_found'] %>
+  <%= erb :_content_file_found_event %>
+<% end %>
+
+<% if @result['descriptor_validation'] %>
+  <%= erb :_descriptor_valid_event %>
+<% end %>
+
+<% if @result['undescribed_files'] %>
+  <%= erb :_undescribed_files_found_events %>
+<% end %>
+
+<% if @result['virus_check'] %>
+    <%= erb :_virus_check_events %>
+<% end %>
+
+<% if @result['checksum_check'] %>
+    <%= erb :_described_files_exist_events %>
+    <%= erb :_checksum_comparison_events %>
+<% end %>
+
 </premis>

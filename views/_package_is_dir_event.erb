@@ -1,13 +1,13 @@
   <event>
     <eventIdentifier>
       <eventIdentifierType>DAITSS</eventIdentifierType>
-        <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
+      <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
     </eventIdentifier>
-    <eventType>SIP passed all validation checks</eventType>
+    <eventType>Specified AIP Directory Exists</eventType>
     <eventDateTime><%= Time.now %></eventDateTime>
     <eventOutcomeInformation>
       <eventOutcome>
-        <%= @result['outcome'] %>  
+        <%= @result['syntax']['package_is_directory'] %>  
       </eventOutcome>
     </eventOutcomeInformation>
     <linkingAgentIdentifier>

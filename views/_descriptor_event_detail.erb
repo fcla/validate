@@ -1,0 +1,9 @@
+<% if @result["descriptor_validation"]["validator_output"] %>
+    <eventOutcomeDetail>
+    <% @result["descriptor_validation"]["validator_output"].each do |line| %>
+      <eventOutcomeDetailNote>
+        <%= line %>
+      </eventOutcomeDetailNote>
+    <% end  %>
+    </eventOutcomeDetail>
+<% end %>
