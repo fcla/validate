@@ -29,7 +29,7 @@ class Validation < Sinatra::Default
     # all clean, validate
     validator = PackageValidator.new
     @result = validator.validate_package url.path
-    erb :report
+    erb :validation_events
   end
 
 end
