@@ -1,6 +1,6 @@
   <event>
     <eventIdentifier>
-      <eventIdentifierType>DAITSS</eventIdentifierType>
+      <eventIdentifierType>Arbitrary</eventIdentifierType>
         <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
     </eventIdentifier>
     <eventType>SIP passed all validation checks</eventType>
@@ -17,7 +17,7 @@
     <linkingObjectIdentifier>
       <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
       <linkingObjectIdentifierValue>
-        <%= @result["path_to_aip"] %>
+        file://<%= @result["path_to_aip"] %>
       </linkingObjectIdentifierValue>
     </linkingObjectIdentifier>
   </event>

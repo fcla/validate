@@ -1,7 +1,7 @@
 <% @result['checksum_check'].each do |key, value| %>
   <event>
     <eventIdentifier>
-      <eventIdentifierType>DAITSS</eventIdentifierType>
+      <eventIdentifierType>Arbitrary</eventIdentifierType>
       <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
     </eventIdentifier>
     <eventType>Described File Present</eventType>
@@ -18,7 +18,7 @@
     <linkingObjectIdentifier>
       <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
       <linkingObjectIdentifierValue>
-        <%= key %>
+        file://<%= File.join(@result["path_to_aip"], key) %>
       </linkingObjectIdentifierValue>
     </linkingObjectIdentifier>
   </event>

@@ -1,7 +1,7 @@
 <% @result['virus_check'].each do |key, value| %>
   <event>
     <eventIdentifier>
-      <eventIdentifierType>DAITSS</eventIdentifierType>
+      <eventIdentifierType>Arbitrary</eventIdentifierType>
       <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
     </eventIdentifier>
     <eventType>Virus Check</eventType>
@@ -14,19 +14,17 @@
     <eventOutcomeDetail>
       <eventOutcomeDetailNote>
         STDOUT: <%= value["STDOUT"] %>
-      </eventOutcomeDetailNote>
-      <eventOutcomeDetailNote>
         STDERR: <%= value["STDERR"] %>
       </eventOutcomeDetailNote>
     </eventOutcomeDetail>
     <linkingAgentIdentifier>
-      <linkingAgentIdentifierType>Path to executable</linkingAgentIdentifierType>
-      <linkingAgentIdentifierValue><%= value["virus_checker_executable"] %></linkingAgentIdentifierValue>
+      <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
+      <linkingAgentIdentifierValue>http://daitss/validation</linkingAgentIdentifierValue>
     </linkingAgentIdentifier>
     <linkingObjectIdentifier>
       <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
       <linkingObjectIdentifierValue>
-        <%= key %>
+        file://<%= File.join(@result["path_to_aip"], key) %>
       </linkingObjectIdentifierValue>
     </linkingObjectIdentifier>
   </event>

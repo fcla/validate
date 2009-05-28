@@ -1,7 +1,7 @@
 <% @result['undescribed_files'].each do |value| %>
   <event>
     <eventIdentifier>
-      <eventIdentifierType>DAITSS</eventIdentifierType>
+      <eventIdentifierType>Arbitrary</eventIdentifierType>
       <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
     </eventIdentifier>
     <eventType>Undescribed file found in SIP</eventType>
@@ -13,7 +13,7 @@
     <linkingObjectIdentifier>
       <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
       <linkingObjectIdentifierValue>
-        <%= value %>
+        file://<%= File.join(@result["path_to_aip"], value) %>
       </linkingObjectIdentifierValue>
     </linkingObjectIdentifier>
   </event>
