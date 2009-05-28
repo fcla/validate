@@ -139,13 +139,6 @@ class PackageValidator
 
       @package_paths_array.push stuff
     end
-
-    # iterate over files in array just created to put relative path version in hash
-    @package_paths_array.each do |path|
-
-      rel_path = path.gsub(@package_paths_array[0], "files")
-      @result["files_in_package"].push rel_path if File.file? path
-    end
   end
 
   # checks that a descriptor of form PACKAGE_NAME.xml/XML exists
@@ -293,7 +286,7 @@ class PackageValidator
       end
 
       if not described and File.file?(path)
-        @result["undescribed_files"].push rel_path
+        @result["undescribed_files"].push File.join("files", rel_path)
       end
     end
   end
@@ -309,7 +302,9 @@ class PackageValidator
 
     @described_files_array.each do |described_file_hash|
       package_path = described_file_hash["path"]
+
       full_path = File.join @package_paths_array[0], package_path
+      aip_rel_path = File.join("files", package_path)
 
       if File.file? full_path
         summary = Executor.execute_return_summary "#{Configuration.instance.values["virus_checker_executable"]} #{full_path}"
@@ -320,49 +315,49 @@ class PackageValidator
 
           # success
         when Configuration.instance.values["virus_exit_status_clean"]
-          @result["virus_check"][package_path] = {}
+          @result["virus_check"][aip_rel_path] = {}
 
-          @result["virus_check"][package_path]["outcome"] = "success"
-          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.values["virus_checker_executable"]
+          @result["virus_check"][aip_rel_path]["outcome"] = "success"
+          @result["virus_check"][aip_rel_path]["virus_checker_executable"] = Configuration.instance.values["virus_checker_executable"]
 
           # virus found
         when Configuration.instance.values["virus_exit_status_infected"]
-          @result["virus_check"][package_path] = {}
+          @result["virus_check"][aip_rel_path] = {}
 
-          @result["virus_check"][package_path]["outcome"] = "failure"
-          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.values["virus_checker_executable"]
+          @result["virus_check"][aip_rel_path]["outcome"] = "failure"
+          @result["virus_check"][aip_rel_path]["virus_checker_executable"] = Configuration.instance.values["virus_checker_executable"]
 
           if summary['STDOUT'] != nil
-            @result["virus_check"][package_path]["STDOUT"] = summary['STDOUT']
+            @result["virus_check"][aip_rel_path]["STDOUT"] = summary['STDOUT']
           else
-            @result["virus_check"][package_path]["STDOUT"] = ""
+            @result["virus_check"][aip_rel_path]["STDOUT"] = ""
           end
 
           if summary['STDERR'] != nil
-            @result["virus_check"][package_path]["STDERR"] = summary['STDERR']
+            @result["virus_check"][aip_rel_path]["STDERR"] = summary['STDERR']
           else
-            @result["virus_check"][package_path]["STDERR"] = ""
+            @result["virus_check"][aip_rel_path]["STDERR"] = ""
           end
 
           all_ok = false
 
           # non-zero exit status that is not the success case
         else
-          @result["virus_check"][package_path] = {}
+          @result["virus_check"][aip_rel_path] = {}
 
-          @result["virus_check"][package_path]["outcome"] = "indeterminate"
-          @result["virus_check"][package_path]["virus_checker_executable"] = Configuration.instance.values["virus_checker_executable"]
+          @result["virus_check"][aip_rel_path]["outcome"] = "indeterminate"
+          @result["virus_check"][aip_rel_path]["virus_checker_executable"] = Configuration.instance.values["virus_checker_executable"]
 
           if summary['STDOUT'] != nil
-            @result["virus_check"][package_path]["STDOUT"] = summary['STDOUT']
+            @result["virus_check"][aip_rel_path]["STDOUT"] = summary['STDOUT']
           else
-            @result["virus_check"][package_path]["STDOUT"] = ""
+            @result["virus_check"][aip_rel_path]["STDOUT"] = ""
           end
 
           if summary['STDERR'] != nil
-            @result["virus_check"][package_path]["STDERR"] = summary['STDERR']
+            @result["virus_check"][aip_rel_path]["STDERR"] = summary['STDERR']
           else
-            @result["virus_check"][package_path]["STDERR"] = ""
+            @result["virus_check"][aip_rel_path]["STDERR"] = ""
           end
 
           all_ok = false
@@ -386,12 +381,13 @@ class PackageValidator
       package_path = described_file_hash["path"]
       described_checksum = described_file_hash["checksum"]
       full_path = File.join @package_paths_array[0], package_path
+      aip_rel_path = File.join("files", package_path)
 
-      @result["checksum_check"][package_path] = {}
+      @result["checksum_check"][aip_rel_path] = {}
 
       # check to see that the file exists, report accordingly
       if File.exists? full_path
-        @result["checksum_check"][package_path]["file_exists"] = "success"
+        @result["checksum_check"][aip_rel_path]["file_exists"] = "success"
 
         # if a described checksum is present in descriptor, compute the checksum for the file.
         # Otherwise, set variable computed_checksum == described_checksum == nil so that equality test in next statement passes
@@ -399,17 +395,17 @@ class PackageValidator
           computed_checksum = compute_file_checksum full_path
 
           if computed_checksum.upcase == described_checksum.upcase
-            @result["checksum_check"][package_path]["checksum_match"] = "success"
+            @result["checksum_check"][aip_rel_path]["checksum_match"] = "success"
           else
-            @result["checksum_check"][package_path]["checksum_match"] = "failure"
-            @result["checksum_check"][package_path]["described"] = described_checksum.upcase
-            @result["checksum_check"][package_path]["computed"] = computed_checksum.upcase
+            @result["checksum_check"][aip_rel_path]["checksum_match"] = "failure"
+            @result["checksum_check"][aip_rel_path]["described"] = described_checksum.upcase
+            @result["checksum_check"][aip_rel_path]["computed"] = computed_checksum.upcase
 
             all_ok = false
           end
         end
       else
-        @result["checksum_check"][package_path]["file_exists"] = "failure"
+        @result["checksum_check"][aip_rel_path]["file_exists"] = "failure"
 
         all_ok = false
       end
