@@ -396,6 +396,8 @@ class PackageValidator
 
           if computed_checksum.upcase == described_checksum.upcase
             @result["checksum_check"][aip_rel_path]["checksum_match"] = "success"
+            @result["checksum_check"][aip_rel_path]["described"] = described_checksum.upcase
+            @result["checksum_check"][aip_rel_path]["computed"] = computed_checksum.upcase
           else
             @result["checksum_check"][aip_rel_path]["checksum_match"] = "failure"
             @result["checksum_check"][aip_rel_path]["described"] = described_checksum.upcase
