@@ -3,6 +3,7 @@
 require 'sinatra'
 require 'cgi'
 require 'package_validator'
+require 'auto_incrementer'
 
 # if we want to rack multiple sinatras up we need to have them separate
 class Validation < Sinatra::Default
@@ -29,6 +30,7 @@ class Validation < Sinatra::Default
     # all clean, validate
     validator = PackageValidator.new
     @result = validator.validate_package url.path
+    @auto_incrementer = AutoIncrementer.new
     erb :validation_events
   end
 
