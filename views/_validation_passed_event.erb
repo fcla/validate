@@ -1,0 +1,24 @@
+  <event>
+    <eventIdentifier>
+      <eventIdentifierType>DAITSS</eventIdentifierType>
+        <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
+      </eventIdentifier>
+    <eventType>SIP passed all validation checks</eventType>
+    <eventDateTime><%= Time.now %></eventDateTime>
+    <eventOutcomeInformation>
+      <eventOutcome>
+        <%= @result['outcome'] %>  
+      </eventOutcome>
+    </eventOutcomeInformation>
+    </eventOutcomeDetail>
+    <linkingAgentIdentifier>
+      <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
+      <linkingAgentIdentifierValue>http://daitss/validation</linkingAgentIdentifierValue>
+    </linkingAgentIdentifier>
+    <linkingObjectIdentifier>
+      <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+      <linkingObjectIdentifierValue>
+        <%= @result["path_to_aip"] %>
+      </linkingObjectIdentifierValue>
+    </linkingObjectIdentifier>
+  </event>
