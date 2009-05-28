@@ -56,15 +56,15 @@ describe PackageValidator do
     hash["undescribed_files"].length.should == 0
 
     # virus check
-    hash["virus_check"]["daitss.jpg"]["outcome"].should == "success"
-    hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["files/daitss.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["files/diamondlogo.jpg"]["outcome"].should == "success"
 
     # checksum check
-    hash["checksum_check"]["daitss.jpg"]["checksum_match"].should == "success"
-    hash["checksum_check"]["diamondlogo.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["files/daitss.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["checksum_match"].should == "success"
 
-    hash["checksum_check"]["daitss.jpg"]["file_exists"].should == "success"
-    hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/daitss.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
   end
 
   it "should fail virus check when virus checker returns an exit status equal to virus_exit_status_infected" do
@@ -89,22 +89,22 @@ describe PackageValidator do
     hash["undescribed_files"].length.should == 0
 
     # virus check
-    hash["virus_check"]["daitss.jpg"]["outcome"].should == "failure"
-    hash["virus_check"]["daitss.jpg"]["STDOUT"].should == "foo\n"
-    hash["virus_check"]["daitss.jpg"]["STDERR"].should == "bar\n"
-    hash["virus_check"]["daitss.jpg"]["virus_checker_executable"].should == "echo foo; echo bar 1>&2; /usr/bin/false"
+    hash["virus_check"]["files/daitss.jpg"]["outcome"].should == "failure"
+    hash["virus_check"]["files/daitss.jpg"]["STDOUT"].should == "foo\n"
+    hash["virus_check"]["files/daitss.jpg"]["STDERR"].should == "bar\n"
+    hash["virus_check"]["files/daitss.jpg"]["virus_checker_executable"].should == "echo foo; echo bar 1>&2; /usr/bin/false"
 
-    hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "failure"
-    hash["virus_check"]["diamondlogo.jpg"]["STDOUT"].should == "foo\n"
-    hash["virus_check"]["diamondlogo.jpg"]["STDERR"].should == "bar\n"
-    hash["virus_check"]["diamondlogo.jpg"]["virus_checker_executable"].should == "echo foo; echo bar 1>&2; /usr/bin/false"
+    hash["virus_check"]["files/diamondlogo.jpg"]["outcome"].should == "failure"
+    hash["virus_check"]["files/diamondlogo.jpg"]["STDOUT"].should == "foo\n"
+    hash["virus_check"]["files/diamondlogo.jpg"]["STDERR"].should == "bar\n"
+    hash["virus_check"]["files/diamondlogo.jpg"]["virus_checker_executable"].should == "echo foo; echo bar 1>&2; /usr/bin/false"
 
     # checksum check
-    hash["checksum_check"]["daitss.jpg"]["checksum_match"].should == "success"
-    hash["checksum_check"]["diamondlogo.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["files/daitss.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["checksum_match"].should == "success"
 
-    hash["checksum_check"]["daitss.jpg"]["file_exists"].should == "success"
-    hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/daitss.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
   end
 
   it "should fail package syntax check if path provided does not exist on the filesystem" do
@@ -263,14 +263,14 @@ describe PackageValidator do
     hash["undescribed_files"].length.should == 0
 
     # virus check
-    hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["files/diamondlogo.jpg"]["outcome"].should == "success"
 
     # checksum check
-    hash["checksum_check"]["daitss.jpg"]["checksum_match"].should == nil
-    hash["checksum_check"]["diamondlogo.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["files/daitss.jpg"]["checksum_match"].should == nil
+    hash["checksum_check"]["files/diamondlogo.jpg"]["checksum_match"].should == "success"
 
-    hash["checksum_check"]["daitss.jpg"]["file_exists"].should == "failure"
-    hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/daitss.jpg"]["file_exists"].should == "failure"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
   end
 
  it "should fail checksum check if described checksum does not match computed checksum" do
@@ -294,16 +294,16 @@ describe PackageValidator do
     hash["undescribed_files"].length.should == 0
 
     # virus check
-    hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["files/diamondlogo.jpg"]["outcome"].should == "success"
 
     # checksum check
-    hash["checksum_check"]["daitss.jpg"]["checksum_match"].should == "success"
-    hash["checksum_check"]["diamondlogo.jpg"]["checksum_match"].should == "failure"
-    hash["checksum_check"]["diamondlogo.jpg"]["described"].should == "8C975DE69A9419B8A02DC985839EA852"
-    hash["checksum_check"]["diamondlogo.jpg"]["computed"].should == "8C975DE69A9419B8A02DC985839EA851"
+    hash["checksum_check"]["files/daitss.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["checksum_match"].should == "failure"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["described"].should == "8C975DE69A9419B8A02DC985839EA852"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["computed"].should == "8C975DE69A9419B8A02DC985839EA851"
 
-    hash["checksum_check"]["daitss.jpg"]["file_exists"].should == "success"
-    hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/daitss.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
   end
 
  it "should report, and subsequently ignore, undescribed files" do
@@ -325,18 +325,18 @@ describe PackageValidator do
 
     # undescribed file check
     hash["undescribed_files"].length.should == 2
-    hash["undescribed_files"][0].should == "foo"
-    hash["undescribed_files"][1].should == "bar"
+    hash["undescribed_files"][0].should == "files/foo"
+    hash["undescribed_files"][1].should == "files/bar"
 
     # virus check
-    hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["files/diamondlogo.jpg"]["outcome"].should == "success"
 
     # checksum check
-    hash["checksum_check"]["daitss.jpg"]["checksum_match"].should == "success"
-    hash["checksum_check"]["diamondlogo.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["files/daitss.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["checksum_match"].should == "success"
 
-    hash["checksum_check"]["daitss.jpg"]["file_exists"].should == "success"
-    hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/daitss.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
  
     # records for undescribed files foo and bar should not exist
     hash["virus_check"]["foo"].should == nil
@@ -366,15 +366,15 @@ describe PackageValidator do
     hash["undescribed_files"].length.should == 0
 
     # virus check
-    hash["virus_check"]["daitss.jpg"]["outcome"].should == "success"
-    hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["files/daitss.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["files/diamondlogo.jpg"]["outcome"].should == "success"
 
     # checksum check
-    hash["checksum_check"]["daitss.jpg"]["checksum_match"].should == nil
-    hash["checksum_check"]["diamondlogo.jpg"]["checksum_match"].should == nil
+    hash["checksum_check"]["files/daitss.jpg"]["checksum_match"].should == nil
+    hash["checksum_check"]["files/diamondlogo.jpg"]["checksum_match"].should == nil
 
-    hash["checksum_check"]["daitss.jpg"]["file_exists"].should == "success"
-    hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/daitss.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
   end
 
   it "should validate CONTAINS_SUBDIRECTORIES package, and reflect all checks passed" do
@@ -397,15 +397,15 @@ describe PackageValidator do
     hash["undescribed_files"].length.should == 0
 
     # virus check
-    hash["virus_check"]["foo/daitss.jpg"]["outcome"].should == "success"
-    hash["virus_check"]["diamondlogo.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["files/foo/daitss.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["files/diamondlogo.jpg"]["outcome"].should == "success"
 
     # checksum check
-    hash["checksum_check"]["foo/daitss.jpg"]["checksum_match"].should == "success"
-    hash["checksum_check"]["diamondlogo.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["files/foo/daitss.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["checksum_match"].should == "success"
 
-    hash["checksum_check"]["foo/daitss.jpg"]["file_exists"].should == "success"
-    hash["checksum_check"]["diamondlogo.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/foo/daitss.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
   end
 
   it "should report an invalid descriptor" do
