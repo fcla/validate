@@ -24,9 +24,10 @@ class Configuration
   attr_reader :values 
 
   # path to configuration file
-  CONFIGURATION_FILE = "/Users/manny/workspace/validate-service/etc/config.yml"
+  DEFAULT_CONFIGURATION_FILE = File.join(File.dirname(__FILE__), '..', 'etc', 'config.yml')
 
-  def initialize
-    @values = YAML.load(open(CONFIGURATION_FILE))
+  def initialize(file=DEFAULT_CONFIGURATION_FILE)
+    @values = open(file) { |io| YAML.load io }
   end
+  
 end

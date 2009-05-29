@@ -82,13 +82,13 @@ class ExternalProvenanceExtractor
   end
 
   # returns the result of Xpath query for external agent nodes
-
   def get_external_agent_nodes document
     begin
-      return document.find('//METS:digiprovMD//premis:agent')
+      return document.find('//METS:digiprovMD//premis:agent',
+                           'METS' => 'http://www.loc.gov/METS/',
+                           'premis' => 'info:lc/xmlns/premis-v2')
     rescue => e
       return Array.new
     end
   end
 end
-

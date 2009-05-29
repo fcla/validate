@@ -216,7 +216,10 @@ class PackageValidator
     @result["descriptor_validation"] = {}
 
     # execute validator on descriptor
-    validation_output = `#{Configuration.instance.values["xml_validator_executable"]} #{@descriptor_path}`
+    # validation_output =
+    # `#{Configuration.instance.values["xml_validator_executable"]}
+    # #{@descriptor_path}`
+    validation_output = `java -Dfile=#{@descriptor_path} -jar xmlvalidator.jar`
 
     if validation_output =~ /Errors: 0\n(.*?)Fatal Errors: 0\n.*?/m
       @result["descriptor_validation"]["descriptor_valid"] = "success"

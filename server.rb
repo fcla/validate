@@ -2,10 +2,13 @@
 
 require 'sinatra'
 require 'cgi'
+
+$:.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'package_validator'
 require 'external_provenance_extractor'
 require 'auto_incrementer'
 require 'libxml'
+
 
 # if we want to rack multiple sinatras up we need to have them separate
 class Validation < Sinatra::Default
