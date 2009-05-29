@@ -20,12 +20,10 @@ describe ExternalProvenanceExtractor do
 
     result["events"].length.should == 2
     result["agents"].length.should == 1
-
-    #pp result["events"]
-    #pp result["agents"]
   end
 
 
+  #TODO: fixme
   it "should return nothing when there are no external events to extract" do
     result = @extractor.extract_provenance EXTERNAL_PROVENANCE_NOT_PRESENT
 
