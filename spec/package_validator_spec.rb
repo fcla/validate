@@ -6,9 +6,6 @@ require 'digest/md5'
 
 describe PackageValidator do
 
-
-  # TODO: add checks for path_to_package and checksum values in hash
-  
   ALL_OK_PACKAGE = "spec/SamplePackages/FDA0000001"
   DOES_NOT_EXIST_ON_FILESYSTEM = "foobar"
   NOT_A_DIRECTORY_ON_FILESYSTEM = "Rakefile"
@@ -41,6 +38,8 @@ describe PackageValidator do
 
     hash["outcome"].should == "success"
 
+    hash["path_to_aip"].should == ALL_OK_PACKAGE
+
     # package syntax checks
     hash["syntax"]["descriptor_found"].should == "success"
     hash["syntax"]["descriptor_is_file"].should == "success"
@@ -63,6 +62,12 @@ describe PackageValidator do
     hash["checksum_check"]["files/daitss.jpg"]["checksum_match"].should == "success"
     hash["checksum_check"]["files/diamondlogo.jpg"]["checksum_match"].should == "success"
 
+    hash["checksum_check"]["files/diamondlogo.jpg"]["described"].should == "8C975DE69A9419B8A02DC985839EA851"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["computed"].should == "8C975DE69A9419B8A02DC985839EA851"
+
+    hash["checksum_check"]["files/daitss.jpg"]["described"].should == "2DE9EF79DF730F93E40819625CF7BCB2"
+    hash["checksum_check"]["files/daitss.jpg"]["computed"].should == "2DE9EF79DF730F93E40819625CF7BCB2"
+
     hash["checksum_check"]["files/daitss.jpg"]["file_exists"].should == "success"
     hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
   end
@@ -73,6 +78,8 @@ describe PackageValidator do
     hash = @validator.validate_package ALL_OK_PACKAGE
 
     hash["outcome"].should == "failure"
+
+    hash["path_to_aip"].should == ALL_OK_PACKAGE
 
     # package syntax checks
     hash["syntax"]["descriptor_found"].should == "success"
@@ -105,12 +112,20 @@ describe PackageValidator do
 
     hash["checksum_check"]["files/daitss.jpg"]["file_exists"].should == "success"
     hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
+
+    hash["checksum_check"]["files/diamondlogo.jpg"]["described"].should == "8C975DE69A9419B8A02DC985839EA851"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["computed"].should == "8C975DE69A9419B8A02DC985839EA851"
+
+    hash["checksum_check"]["files/daitss.jpg"]["described"].should == "2DE9EF79DF730F93E40819625CF7BCB2"
+    hash["checksum_check"]["files/daitss.jpg"]["computed"].should == "2DE9EF79DF730F93E40819625CF7BCB2"
   end
 
   it "should fail package syntax check if path provided does not exist on the filesystem" do
     hash = @validator.validate_package DOES_NOT_EXIST_ON_FILESYSTEM
 
     hash["outcome"].should == "failure"
+
+    hash["path_to_aip"].should == DOES_NOT_EXIST_ON_FILESYSTEM
 
     # package syntax checks
     
@@ -139,6 +154,8 @@ describe PackageValidator do
 
     hash["outcome"].should == "failure"
 
+    hash["path_to_aip"].should == NOT_A_DIRECTORY_ON_FILESYSTEM
+
     # package syntax checks
 
     hash["syntax"]["descriptor_found"].should == nil
@@ -165,6 +182,8 @@ describe PackageValidator do
     hash = @validator.validate_package DOES_NOT_CONTAIN_DESCRIPTOR
 
     hash["outcome"].should == "failure"
+
+    hash["path_to_aip"].should == DOES_NOT_CONTAIN_DESCRIPTOR
 
     # package syntax checks
 
@@ -193,6 +212,8 @@ describe PackageValidator do
 
     hash["outcome"].should == "failure"
 
+    hash["path_to_aip"].should == DESCRIPTOR_IS_NOT_FILE
+
     # package syntax checks
 
     hash["syntax"]["descriptor_found"].should == "success"
@@ -220,6 +241,8 @@ describe PackageValidator do
 
     hash["outcome"].should == "failure"
 
+    hash["path_to_aip"].should == NO_CONTENT_FILES
+
     # package syntax checks
 
     hash["syntax"]["descriptor_found"].should == "success"
@@ -246,6 +269,8 @@ describe PackageValidator do
     hash = @validator.validate_package FILE_REFERENCED_BUT_MISSING
 
     hash["outcome"].should == "failure"
+
+    hash["path_to_aip"].should == FILE_REFERENCED_BUT_MISSING
 
     # package syntax checks
 
@@ -278,6 +303,8 @@ describe PackageValidator do
 
     hash["outcome"].should == "failure"
 
+    hash["path_to_aip"].should == CHECKSUM_MISMATCH
+
     # package syntax checks
 
     hash["syntax"]["descriptor_found"].should == "success"
@@ -304,12 +331,17 @@ describe PackageValidator do
 
     hash["checksum_check"]["files/daitss.jpg"]["file_exists"].should == "success"
     hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
+
+    hash["checksum_check"]["files/daitss.jpg"]["described"].should == "2DE9EF79DF730F93E40819625CF7BCB2"
+    hash["checksum_check"]["files/daitss.jpg"]["computed"].should == "2DE9EF79DF730F93E40819625CF7BCB2"
   end
 
  it "should report, and subsequently ignore, undescribed files" do
     hash = @validator.validate_package UNDESCRIBED_FILES_PRESENT
 
     hash["outcome"].should == "success"
+
+    hash["path_to_aip"].should == UNDESCRIBED_FILES_PRESENT
 
     # package syntax checks
 
@@ -338,6 +370,12 @@ describe PackageValidator do
     hash["checksum_check"]["files/daitss.jpg"]["file_exists"].should == "success"
     hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
  
+    hash["checksum_check"]["files/diamondlogo.jpg"]["described"].should == "8C975DE69A9419B8A02DC985839EA851"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["computed"].should == "8C975DE69A9419B8A02DC985839EA851"
+
+    hash["checksum_check"]["files/daitss.jpg"]["described"].should == "2DE9EF79DF730F93E40819625CF7BCB2"
+    hash["checksum_check"]["files/daitss.jpg"]["computed"].should == "2DE9EF79DF730F93E40819625CF7BCB2"
+
     # records for undescribed files foo and bar should not exist
     hash["virus_check"]["foo"].should == nil
     hash["virus_check"]["bar"].should == nil
@@ -350,6 +388,8 @@ describe PackageValidator do
     hash = @validator.validate_package NO_DESCRIBED_CHECKSUMS
 
     hash["outcome"].should == "success"
+
+    hash["path_to_aip"].should == NO_DESCRIBED_CHECKSUMS
 
     # package syntax checks
     hash["syntax"]["descriptor_found"].should == "success"
@@ -382,6 +422,8 @@ describe PackageValidator do
 
     hash["outcome"].should == "success"
 
+    hash["path_to_aip"].should == CONTAINS_SUBDIRECTORIES
+
     # package syntax checks
     hash["syntax"]["descriptor_found"].should == "success"
     hash["syntax"]["descriptor_is_file"].should == "success"
@@ -406,12 +448,20 @@ describe PackageValidator do
 
     hash["checksum_check"]["files/foo/daitss.jpg"]["file_exists"].should == "success"
     hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
+
+    hash["checksum_check"]["files/diamondlogo.jpg"]["described"].should == "8C975DE69A9419B8A02DC985839EA851"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["computed"].should == "8C975DE69A9419B8A02DC985839EA851"
+
+    hash["checksum_check"]["files/foo/daitss.jpg"]["described"].should == "2DE9EF79DF730F93E40819625CF7BCB2"
+    hash["checksum_check"]["files/foo/daitss.jpg"]["computed"].should == "2DE9EF79DF730F93E40819625CF7BCB2"
   end
 
   it "should report an invalid descriptor" do
     hash = @validator.validate_package INVALID_DESCRIPTOR
 
     hash["outcome"].should == "failure"
+
+    hash["path_to_aip"].should == INVALID_DESCRIPTOR
 
     # package syntax checks
     hash["syntax"]["descriptor_found"].should == "success"
@@ -438,6 +488,8 @@ describe PackageValidator do
     hash = @validator.validate_package NOT_WELL_FORMED_DESCRIPTOR
 
     hash["outcome"].should == "failure"
+
+    hash["path_to_aip"].should == NOT_WELL_FORMED_DESCRIPTOR
 
     # package syntax checks
     hash["syntax"]["descriptor_found"].should == "success"
