@@ -15,7 +15,7 @@ require 'configuration'
 # The validation tasks are, in order: 
 # * Validation of package syntax 
 # * Account/Project verification 
-# * SIP descriptor validation (after retriving files needed for validation from the XML resolution service)
+# * SIP descriptor validation 
 # * Look for and record any undescribed files
 # * Virus check described files
 # * Verify checksums for described files
