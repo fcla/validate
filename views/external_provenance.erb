@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<premis xmlns="info:lc/xmlns/premis-v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0">
+
+<% @external_p["events"].each do |event| %>
+  <%= event.to_s %>
+<% end %>
+
+<% @external_p["agents"].each do |agent| %>
+  <%= agent.to_s %>
+<% end %>
+
+</premis>
