@@ -1,10 +1,10 @@
 <% @result['checksum_check'].each do |key, value| %>
   <event>
     <eventIdentifier>
-      <eventIdentifierType>Arbitrary</eventIdentifierType>
+      <eventIdentifierType>Temporary Local</eventIdentifierType>
       <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
     </eventIdentifier>
-    <eventType>Checksum Comparison</eventType>
+    <eventType>MD5 Checksum Comparison</eventType>
     <eventDateTime><%= Time.now %></eventDateTime>
     <eventOutcomeInformation>
       <eventOutcome>

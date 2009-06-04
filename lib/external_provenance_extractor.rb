@@ -75,7 +75,9 @@ class ExternalProvenanceExtractor
 
   def get_external_event_nodes document
     begin
-      return document.find('//METS:digiprovMD//premis:event')
+      return document.find('//METS:digiprovMD//premis:event',
+                           'METS' => 'http://www.loc.gov/METS/',
+                           'premis' => 'info:lc/xmlns/premis-v2')
     rescue => e
       return Array.new
     end
