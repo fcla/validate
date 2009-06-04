@@ -11,12 +11,14 @@
         <%= value['outcome'] %>  
       </eventOutcome>
     </eventOutcomeInformation>
-    <eventOutcomeDetail>
-      <eventOutcomeDetailNote>
-        STDOUT: <%= value["STDOUT"] %>
-        STDERR: <%= value["STDERR"] %>
-      </eventOutcomeDetailNote>
-    </eventOutcomeDetail>
+    <% if value['outcome'] != "success" %>
+      <eventOutcomeDetail>
+        <eventOutcomeDetailNote>
+          STDOUT: <%= value["STDOUT"] %>
+          STDERR: <%= value["STDERR"] %>
+        </eventOutcomeDetailNote>
+      </eventOutcomeDetail>
+    <% end %>
     <linkingAgentIdentifier>
       <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
       <linkingAgentIdentifierValue>http://daitss/validation</linkingAgentIdentifierValue>
