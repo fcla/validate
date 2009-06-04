@@ -248,6 +248,7 @@ class PackageValidator
   # ...
   # records relative paths to described files in @result 
   
+  # TODO this needs to handle SHA1's properly
   def get_described_file_list_from_descriptor
     file_nodes = @descriptor_document.find('//METS:file').to_a
 

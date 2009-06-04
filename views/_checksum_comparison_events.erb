@@ -1,4 +1,5 @@
 <% @result['checksum_check'].each do |key, value| %>
+  <% if value['outcome'] %>
   <event>
     <eventIdentifier>
       <eventIdentifierType>Temporary Local</eventIdentifierType>
@@ -28,4 +29,25 @@
       </linkingObjectIdentifierValue>
     </linkingObjectIdentifier>
   </event>
+
+<% else %>
+  <event>
+    <eventIdentifier>
+      <eventIdentifierType>Temporary Local</eventIdentifierType>
+      <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
+    </eventIdentifier>
+    <eventType>No Described Checksums</eventType>
+    <eventDateTime><%= Time.now %></eventDateTime>
+    <linkingAgentIdentifier>
+      <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
+      <linkingAgentIdentifierValue>http://daitss/validation</linkingAgentIdentifierValue>
+    </linkingAgentIdentifier>
+    <linkingObjectIdentifier>
+      <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+      <linkingObjectIdentifierValue>
+        file://<%= File.join(@result["path_to_aip"], key) %>
+      </linkingObjectIdentifierValue>
+    </linkingObjectIdentifier>
+  </event>
+  <% end %>
 <% end %>
