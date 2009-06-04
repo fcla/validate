@@ -1,53 +1,55 @@
 <% @result['checksum_check'].each do |key, value| %>
-  <% if value['outcome'] %>
-  <event>
-    <eventIdentifier>
-      <eventIdentifierType>Temporary Local</eventIdentifierType>
-      <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
-    </eventIdentifier>
-    <eventType>MD5 Checksum Comparison</eventType>
-    <eventDateTime><%= Time.now %></eventDateTime>
-    <eventOutcomeInformation>
-      <eventOutcome>
-        <%= value['checksum_match'] %>  
-      </eventOutcome>
-    </eventOutcomeInformation>
-    <eventOutcomeDetail>
-      <eventOutcomeDetailNote>
-        Described checksum: <%= value["described"] %>
-        Computed checksum: <%= value["computed"] %>
-      </eventOutcomeDetailNote>
-    </eventOutcomeDetail>
-    <linkingAgentIdentifier>
-      <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
-      <linkingAgentIdentifierValue>http://daitss/validation</linkingAgentIdentifierValue>
-    </linkingAgentIdentifier>
-    <linkingObjectIdentifier>
-      <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
-      <linkingObjectIdentifierValue>
-        file://<%= File.join(@result["path_to_aip"], key) %>
-      </linkingObjectIdentifierValue>
-    </linkingObjectIdentifier>
-  </event>
+  <% if value['file_exists'] == "success" %>
+    <% if value['checksum_match'] %>
+      <event>
+        <eventIdentifier>
+          <eventIdentifierType>Temporary Local</eventIdentifierType>
+          <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
+        </eventIdentifier>
+        <eventType>MD5 Checksum Comparison</eventType>
+        <eventDateTime><%= Time.now %></eventDateTime>
+        <eventOutcomeInformation>
+          <eventOutcome>
+            <%= value['checksum_match'] %>  
+          </eventOutcome>
+        </eventOutcomeInformation>
+        <eventOutcomeDetail>
+          <eventOutcomeDetailNote>
+            Described checksum: <%= value["described"] %>
+            Computed checksum: <%= value["computed"] %>
+          </eventOutcomeDetailNote>
+        </eventOutcomeDetail>
+        <linkingAgentIdentifier>
+          <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
+          <linkingAgentIdentifierValue>http://daitss/validation</linkingAgentIdentifierValue>
+        </linkingAgentIdentifier>
+        <linkingObjectIdentifier>
+          <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+          <linkingObjectIdentifierValue>
+            file://<%= File.join(@result["path_to_aip"], key) %>
+          </linkingObjectIdentifierValue>
+          </linkingObjectIdentifier>
+      </event>
 
-<% else %>
-  <event>
-    <eventIdentifier>
-      <eventIdentifierType>Temporary Local</eventIdentifierType>
-      <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
-    </eventIdentifier>
-    <eventType>No Described Checksums</eventType>
-    <eventDateTime><%= Time.now %></eventDateTime>
-    <linkingAgentIdentifier>
-      <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
-      <linkingAgentIdentifierValue>http://daitss/validation</linkingAgentIdentifierValue>
-    </linkingAgentIdentifier>
-    <linkingObjectIdentifier>
-      <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
-      <linkingObjectIdentifierValue>
-        file://<%= File.join(@result["path_to_aip"], key) %>
-      </linkingObjectIdentifierValue>
-    </linkingObjectIdentifier>
-  </event>
+    <% else %>
+      <event>
+        <eventIdentifier>
+          <eventIdentifierType>Temporary Local</eventIdentifierType>
+          <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
+        </eventIdentifier>
+        <eventType>No Described Checksums</eventType>
+        <eventDateTime><%= Time.now %></eventDateTime>
+        <linkingAgentIdentifier>
+          <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
+          <linkingAgentIdentifierValue>http://daitss/validation</linkingAgentIdentifierValue>
+        </linkingAgentIdentifier>
+        <linkingObjectIdentifier>
+          <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+          <linkingObjectIdentifierValue>
+            file://<%= File.join(@result["path_to_aip"], key) %>
+          </linkingObjectIdentifierValue>
+        </linkingObjectIdentifier>
+      </event>
+    <% end %>
   <% end %>
 <% end %>
