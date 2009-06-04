@@ -12,19 +12,18 @@ require 'libxml'
 
 # if we want to rack multiple sinatras up we need to have them separate
 class Validation < Sinatra::Default
-  
+
   # Expects a query parameter named location to be a cgi escaped uri
   # of a package. Currently only file urls are supported.
   # Returns 400 if there is a problem with the URI.
   get '/' do
-    
+
     # make sure location exists
     halt 400, "Missing parameter: location" unless params[:location]
 
     # parse location into a url
     url = begin
-            raw_url = CGI::unescape params[:location]
-            URI.parse raw_url
+            URI.parse params[:location]
           rescue => e
             halt 400, "Ill-formed url: #{raw_url}"
           end
@@ -44,7 +43,7 @@ class Validation < Sinatra::Default
   # of a package. Currently only file urls are supported.
   # Returns 400 if there is a problem with the URI.
   get '/external_provenance' do
-    
+
     # make sure location exists
     halt 400, "Missing parameter: location" unless params[:location]
 
