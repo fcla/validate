@@ -362,6 +362,8 @@ describe PackageValidator do
 
     # virus check
     hash["virus_check"]["files/diamondlogo.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["files/foo"]["outcome"].should == "success"
+    hash["virus_check"]["files/bar"]["outcome"].should == "success"
 
     # checksum check
     hash["checksum_check"]["files/daitss.jpg"]["checksum_match"].should == "success"
@@ -377,11 +379,9 @@ describe PackageValidator do
     hash["checksum_check"]["files/daitss.jpg"]["computed"].should == "2DE9EF79DF730F93E40819625CF7BCB2"
 
     # records for undescribed files foo and bar should not exist
-    hash["virus_check"]["foo"].should == nil
-    hash["virus_check"]["bar"].should == nil
 
-    hash["checksum_check"]["foo"].should == nil
-    hash["checksum_check"]["bar"].should == nil
+    hash["checksum_check"]["files/foo"].should == nil
+    hash["checksum_check"]["files/bar"].should == nil
   end
 
   it "should validate NO_DESCRIBED_CHECKSUMS package, and reflect all checks passed" do

@@ -303,14 +303,11 @@ class PackageValidator
 
     all_ok = true
 
-    @described_files_array.each do |described_file_hash|
-      package_path = described_file_hash["path"]
+    @package_paths_array.each do |path|
+      aip_rel_path = File.join("files", path.gsub(@package_paths_array[0], ""))
 
-      full_path = File.join @package_paths_array[0], package_path
-      aip_rel_path = File.join("files", package_path)
-
-      if File.file? full_path
-        summary = Executor.execute_return_summary "#{Configuration.instance.values["virus_checker_executable"]} #{full_path}"
+      if File.file? path
+        summary = Executor.execute_return_summary "#{Configuration.instance.values["virus_checker_executable"]} #{path}"
 
         # inspect the exit status of the virus checker to see what the result is for this file
 
