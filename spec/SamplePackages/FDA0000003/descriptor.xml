@@ -1,0 +1,47 @@
+<mets xmlns="http://www.loc.gov/METS/"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd
+                          http://www.fcla.edu/dls/md/daitss/ http://www.fcla.edu/dls/md/daitss/daitss.xsd
+                          http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-3.xsd"
+      OBJID="FDA0000003">
+
+
+
+  <amdSec>
+    <digiprovMD ID="DPMD1">
+      <mdWrap MDTYPE="OTHER" OTHERMDTYPE="DATISS">
+        <xmlData>
+          <daitss xmlns="http://www.fcla.edu/dls/md/daitss/">
+            <AGREEMENT_INFO ACCOUNT="FDA" PROJECT="FDA"/>
+          </daitss>
+        </xmlData>
+      </mdWrap>
+    </digiprovMD>
+  </amdSec>
+  <fileSec>
+    <fileGrp>
+    
+      <file ID="F1" CHECKSUM="af853320c80b96bfaebb24eaf1ee5fad" CHECKSUMTYPE="MD5">
+      <FLocat LOCTYPE="URL" xlink:href="files/FDA0000003.xml"/>
+      </file>
+    
+    </fileGrp>
+  </fileSec>
+  <structMap>
+
+  
+    <div>
+  
+
+    
+    
+      <fptr FILEID="F1"/>
+    
+
+  
+    </div>
+  
+
+  </structMap>
+</mets>

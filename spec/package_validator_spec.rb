@@ -35,7 +35,6 @@ describe PackageValidator do
 
   it "should validate ALL_OK package, and reflect all checks passed" do
     hash = @validator.validate_package ALL_OK_PACKAGE
-
     hash["outcome"].should == "success"
 
     hash["path_to_aip"].should == ALL_OK_PACKAGE
@@ -122,60 +121,16 @@ describe PackageValidator do
 
   it "should fail package syntax check if path provided does not exist on the filesystem" do
     hash = @validator.validate_package DOES_NOT_EXIST_ON_FILESYSTEM
-
     hash["outcome"].should == "failure"
-
     hash["path_to_aip"].should == DOES_NOT_EXIST_ON_FILESYSTEM
-
-    # package syntax checks
-    
-    hash["syntax"]["descriptor_found"].should == nil
-    hash["syntax"]["descriptor_is_file"].should == nil
-    hash["syntax"]["content_file_found"].should == nil
-    hash["syntax"]["package_is_directory"].should == "failure"
-
-    # TODO: account/project verification not yet implemented"
-
-    # descriptor check
-    hash["descriptor_validation"].should == nil
-
-    # undescribed file check
-    hash["undescribed_files"].should == nil
-
-    # virus check
-    hash["virus_check"].should == nil
-
-    # checksum check
-    hash["checksum_check"].should == nil
+    hash["exception caught message"].should == "aip descriptor not found"
   end
 
   it "should fail package syntax check if path provided does not point to a directory on the filesystem" do
     hash = @validator.validate_package NOT_A_DIRECTORY_ON_FILESYSTEM
-
     hash["outcome"].should == "failure"
-
     hash["path_to_aip"].should == NOT_A_DIRECTORY_ON_FILESYSTEM
-
-    # package syntax checks
-
-    hash["syntax"]["descriptor_found"].should == nil
-    hash["syntax"]["descriptor_is_file"].should == nil
-    hash["syntax"]["content_file_found"].should == nil
-    hash["syntax"]["package_is_directory"].should == "failure"
-
-    # TODO: account/project verification not yet implemented"
-
-    # descriptor check
-    hash["descriptor_validation"].should == nil
-
-    # undescribed file check
-    hash["undescribed_files"].should == nil
-
-    # virus check
-    hash["virus_check"].should == nil
-
-    # checksum check
-    hash["checksum_check"].should == nil
+    hash["exception caught message"].should == "aip descriptor not found"
   end
 
   it "should fail package syntax check if path provided does not contain a descriptor" do

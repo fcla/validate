@@ -5,6 +5,7 @@ require 'pp'
 require 'executor'
 require 'digest/md5'
 require 'configuration'
+require 'namespace'
 
 # Class PackageValidator
 # Author: Manny Rodriguez
@@ -54,7 +55,13 @@ class PackageValidator
     begin
 
       @result['path_to_aip'] = path_to_package
-      @package_name = File.basename path_to_package
+      
+      aip_desc_path = File.join path_to_package, 'descriptor.xml'
+      raise "aip descriptor not found" unless File.exist? aip_desc_path
+      aip_desc = XML::Parser.file(aip_desc_path).parse
+      @package_name = aip_desc.root['OBJID']
+      
+      # @package_name = File.basename path_to_package
 
       path_to_package = File.join(path_to_package, "files")
 
@@ -72,6 +79,7 @@ class PackageValidator
     # any other exceptions caught will result in report indicating failure to complete validation
     rescue => e
       @result["outcome"] = "failure"
+      @result["exception caught message"] = e.message
     end
 
     # no exceptions caught mean no fatal errors, let's see what happened with the virus and checksum checks
@@ -250,7 +258,7 @@ class PackageValidator
   
   # TODO this needs to handle SHA1's properly
   def get_described_file_list_from_descriptor
-    file_nodes = @descriptor_document.find('//METS:file').to_a
+    file_nodes = @descriptor_document.find('//METS:file', NS_MAP).to_a
 
     file_nodes.each do |file_node|
       file_node_attributes = file_node.attributes

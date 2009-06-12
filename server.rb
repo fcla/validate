@@ -49,8 +49,7 @@ class Validation < Sinatra::Default
 
     # parse location into a url
     url = begin
-            raw_url = CGI::unescape params[:location]
-            URI.parse raw_url
+            URI.parse params[:location]
           rescue => e
             halt 400, "Ill-formed url: #{raw_url}"
           end
