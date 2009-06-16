@@ -8,7 +8,7 @@ require 'package_validator'
 require 'auto_incrementer'
 
 # if we want to rack multiple sinatras up we need to have them separate
-class Validation < Sinatra::Default
+class Validation < Sinatra::Base
 
   # Expects a query parameter named location to be a cgi escaped uri
   # of a package. Currently only file urls are supported.

@@ -6,7 +6,7 @@ require 'cgi'
 $:.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'external_provenance_extractor'
 
-class Provenance < Sinatra::Default
+class Provenance < Sinatra::Base
   
   # Expects a query parameter named location to be a cgi escaped uri
   # of a package. Currently only file urls are supported.
