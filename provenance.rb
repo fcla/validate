@@ -8,6 +8,8 @@ require 'external_provenance_extractor'
 
 class Provenance < Sinatra::Base
   
+  set :root, File.dirname(__FILE__)
+  
   # Expects a query parameter named location to be a cgi escaped uri
   # of a package. Currently only file urls are supported.
   # Returns 400 if there is a problem with the URI.

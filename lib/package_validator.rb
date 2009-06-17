@@ -77,11 +77,14 @@ class PackageValidator
       @result["outcome"] = "failure"
 
     # any other exceptions caught will result in report indicating failure to complete validation
+
+    # XXX need to not do this,
+    # example: could not locate validator.jar, this needs to be a 500 because this code is not working properly
     rescue => e
       @result["outcome"] = "failure"
       @result["exception caught message"] = e.message
     end
-
+    
     # no exceptions caught mean no fatal errors, let's see what happened with the virus and checksum checks
     if virus_check_clean && checksums_match
       @result["outcome"] = "success"
@@ -223,11 +226,8 @@ class PackageValidator
   def validate_descriptor
     @result["descriptor_validation"] = {}
 
-    # execute validator on descriptor
-    # validation_output =
-    # `#{Configuration.instance.values["xml_validator_executable"]}
-    # #{@descriptor_path}`
-    validation_output = `java -Dfile=#{@descriptor_path} -jar xmlvalidator.jar`
+    jar_file = File.join File.dirname(__FILE__), '..', 'xmlvalidator.jar'
+    validation_output = `java -Dfile=#{@descriptor_path} -jar #{jar_file}`
 
     if validation_output =~ /Errors: 0\n(.*?)Fatal Errors: 0\n.*?/m
       @result["descriptor_validation"]["descriptor_valid"] = "success"
