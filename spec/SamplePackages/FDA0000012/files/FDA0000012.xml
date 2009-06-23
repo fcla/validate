@@ -144,7 +144,6 @@
       </METS:mdWrap>
     </METS:digiprovMD>
 
-
     <METS:digiprovMD ID="DPMD3">
       <METS:mdWrap MDTYPE="PREMIS" >
         <METS:xmlData>
