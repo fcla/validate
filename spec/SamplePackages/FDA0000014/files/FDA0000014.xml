@@ -204,19 +204,77 @@
       </METS:mdWrap>
     </METS:digiprovMD>
 
+
+    <METS:digiprovMD ID="DPMD5">
+      <METS:mdWrap MDTYPE="PREMIS" LABEL="RXP">
+        <METS:xmlData>
+          <!-- TIPR Package IDs (classified as representations) -->
+          <object xsi:type="representation">
+            <objectIdentifier>
+              <objectIdentifierType>URI</objectIdentifierType>
+              <objectIdentifierValue>info:fcla/daitss/E20090225_AAAIWH</objectIdentifierValue>
+            </objectIdentifier>
+          </object>
+
+          <!-- TIPR Events -->
+          <event>
+
+            <eventIdentifier>
+              <eventIdentifierType>URI</eventIdentifierType>
+              <eventIdentifierValue>info:fcla/daitss/E20090225_AAAIWH/event/32158605</eventIdentifierValue>
+            </eventIdentifier>
+
+            <eventType>dissemination</eventType> 
+            <eventDateTime>2009-02-26T11:16:46-05:00</eventDateTime>
+            <eventDetail>Disseminated TIPR package</eventDetail> 
+
+            <eventOutcomeInformation>
+              <eventOutcome>SUCCESS</eventOutcome>
+              <eventOutcomeDetail><eventOutcomeDetailNote/></eventOutcomeDetail>
+            </eventOutcomeInformation>
+
+            <!-- Related Representation Object -->
+            <linkingObjectIdentifier>
+              <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+              <linkingObjectIdentifierValue>info:fcla/daitss/E20090225_AAAIWH</linkingObjectIdentifierValue>
+            </linkingObjectIdentifier>
+
+            <!-- Related Agent -->
+            <linkingAgentIdentifier>
+              <agentIdentifierType>URI</agentIdentifierType>
+              <agentIdentifierValue>info:fcla/daitss/agent/FDA</agentIdentifierValue>  
+            </linkingAgentIdentifier>
+
+          </event>
+
+
+          <!-- TIPR Agents -->
+          <agent>
+            <agentIdentifier>
+              <agentIdentifierType>URI</agentIdentifierType>
+              <agentIdentifierValue>info:fcla/daitss/agent/FDA</agentIdentifierValue>
+            </agentIdentifier>
+            <agentName>FDA</agentName>
+            <agentType>organization</agentType>
+          </agent>
+
+        </METS:xmlData>
+      </METS:mdWrap>
+    </METS:digiprovMD>
+
   </METS:amdSec>
-  
+
   <!-- It is not necessary to create multiple file groups for 
-       each format included in the package, although it can be 
-       useful to do so to apply metadata sections to a group as a
-       whole. -->
-  
+  each format included in the package, although it can be 
+  useful to do so to apply metadata sections to a group as a
+  whole. -->
+
   <METS:fileSec>
     <METS:fileGrp>
       <METS:fileGrp>
-	
-	<!--file element includes some technical metadata. xlink:href 
-	    is used to point to content files using relative system
+
+        <!--file element includes some technical metadata. xlink:href 
+        is used to point to content files using relative system
 	    paths. 
 	    Optional GROUPID is used to relate different
 	    representations of underlying content components 
