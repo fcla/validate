@@ -57,6 +57,34 @@ class ExternalProvenanceExtractor
     
   end
 
+  def extract_rxp_provenance path_to_package
+
+      document = begin 
+        get_descriptor_document path_to_package
+      rescue => e
+        return nil
+      end
+      
+      result = {}
+      result["events"] = []
+      result["agents"] = []
+
+      event_nodes = get_external_event_nodes document
+
+      event_nodes.each do |node|
+        result["events"].push node
+      end
+
+      agent_nodes = get_external_agent_nodes document
+
+      agent_nodes.each do |node|
+        result["agents"].push node
+      end
+
+      return result
+    
+  end
+
   private
 
   # returns an LibXML document object representing the package descriptor

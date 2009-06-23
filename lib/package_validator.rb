@@ -57,7 +57,7 @@ class PackageValidator
       @result['path_to_aip'] = path_to_package
       
       aip_desc_path = File.join path_to_package, 'descriptor.xml'
-      raise "aip descriptor not found" unless File.exist? aip_desc_path
+      raise ValidationFailed, "aip descriptor not found" unless File.exist? aip_desc_path
       aip_desc = LibXML::XML::Parser.file(aip_desc_path).parse
       @package_name = aip_desc.root['OBJID']
       
@@ -73,8 +73,9 @@ class PackageValidator
       checksums_match = validate_checksums
 
     # any ValidationFailed exceptions caught indicate a problem with the package 
-    rescue ValidationFailed 
+    rescue ValidationFailed => e
       @result["outcome"] = "failure"
+      @result["exception caught message"] = e.message
 
       # any other exceptions caught will result in report indicating failure to complete validation
     end
@@ -123,7 +124,7 @@ class PackageValidator
   def validate_syntax_path_is_dir path_to_package
     if not File.directory? path_to_package
       @result["syntax"]["package_is_directory"] = "failure"
-      raise StandardError, "Specified path is not a directory"
+      raise ValidationFailed, "Specified path is not a directory"
     else
       @result["syntax"]["package_is_directory"] = "success"
     end
@@ -165,7 +166,7 @@ class PackageValidator
 
     else
       @result["syntax"]["descriptor_found"] = "failure"
-      raise StandardError, "Expected SIP descriptor not found"
+      raise ValidationFailed, "Expected SIP descriptor not found"
     end
   end
 
@@ -178,7 +179,7 @@ class PackageValidator
       @result["syntax"]["descriptor_is_file"] = "success"
     else
       @result["syntax"]["descriptor_is_file"] = "failure"
-      raise StandardError, "SIP descriptor is not a file"
+      raise ValidationFailed, "SIP descriptor is not a file"
     end
   end
 
@@ -200,7 +201,7 @@ class PackageValidator
       @result["syntax"]["content_file_found"] = "success"
     else
       @result["syntax"]["content_file_found"] = "failure"
-      raise StandardError, "No content files found"
+      raise ValidationFailed, "No content files found"
     end
   end
 
