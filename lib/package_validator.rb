@@ -58,7 +58,7 @@ class PackageValidator
       
       aip_desc_path = File.join path_to_package, 'descriptor.xml'
       raise "aip descriptor not found" unless File.exist? aip_desc_path
-      aip_desc = XML::Parser.file(aip_desc_path).parse
+      aip_desc = LibXML::XML::Parser.file(aip_desc_path).parse
       @package_name = aip_desc.root['OBJID']
       
       # @package_name = File.basename path_to_package
@@ -73,16 +73,10 @@ class PackageValidator
       checksums_match = validate_checksums
 
     # any ValidationFailed exceptions caught indicate a problem with the package 
-    rescue ValidationFailed
+    rescue ValidationFailed 
       @result["outcome"] = "failure"
 
-    # any other exceptions caught will result in report indicating failure to complete validation
-
-    # XXX need to not do this,
-    # example: could not locate validator.jar, this needs to be a 500 because this code is not working properly
-    rescue => e
-      @result["outcome"] = "failure"
-      @result["exception caught message"] = e.message
+      # any other exceptions caught will result in report indicating failure to complete validation
     end
     
     # no exceptions caught mean no fatal errors, let's see what happened with the virus and checksum checks
@@ -243,7 +237,7 @@ class PackageValidator
         end
       end
 
-      raise StandardError, "Descriptor did not validate"
+      raise ValidationFailed, "Descriptor did not validate"
     end
   end
 

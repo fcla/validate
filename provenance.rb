@@ -22,7 +22,7 @@ class Provenance < Sinatra::Base
     url = begin
             URI.parse params[:location]
           rescue => e
-            halt 400, "Ill-formed url: #{raw_url}"
+            halt 400, "Ill-formed url: #{params[:location]}"
           end
 
     # for now only support file
