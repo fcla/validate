@@ -65,24 +65,15 @@ class ExternalProvenanceExtractor
         return nil
       end
       
-      result = {}
-      result["events"] = []
-      result["agents"] = []
+      result = []
 
-      event_nodes = get_external_event_nodes document
+      rxp_nodes = get_external_rxp_nodes document
 
-      event_nodes.each do |node|
-        result["events"].push node
-      end
-
-      agent_nodes = get_external_agent_nodes document
-
-      agent_nodes.each do |node|
-        result["agents"].push node
+      rxp_nodes.each do |node|
+        result.push node
       end
 
       return result
-    
   end
 
   private
@@ -108,6 +99,11 @@ class ExternalProvenanceExtractor
   # returns the result of Xpath query for external agent nodes
   def get_external_agent_nodes document
     document.find('//METS:digiprovMD//premis:agent', NS_MAP)
+  end
+
+  # returns the result of Xpath query for external RXP nodes
+  def get_external_rxp_nodes document
+    document.find("mdWrap[@LABEL='RXP']", NS_MAP)
   end
   
   def get_sip_name
