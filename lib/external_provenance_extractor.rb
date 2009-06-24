@@ -87,12 +87,12 @@ class ExternalProvenanceExtractor
 
   # returns the result of Xpath query for external event nodes
   def get_external_event_nodes document
-    document.find('//METS:digiprovMD//premis:event', NS_MAP)
+    document.find("//METS:mdWrap[not(@LABEL) or @LABEL!='RXP']//premis:event", NS_MAP)
   end
 
   # returns the result of Xpath query for external agent nodes
   def get_external_agent_nodes document
-    document.find('//METS:digiprovMD//premis:agent', NS_MAP)
+    document.find("//METS:mdWrap[not(@LABEL) or @LABEL!='RXP']//premis:agent", NS_MAP)
   end
 
   # returns the result of Xpath query for external RXP nodes
