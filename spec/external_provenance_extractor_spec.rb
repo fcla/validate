@@ -6,6 +6,8 @@ describe ExternalProvenanceExtractor do
 
   EXTERNAL_PROVENANCE_PRESENT = "spec/SamplePackages/FDA0000012"
   EXTERNAL_PROVENANCE_NOT_PRESENT = "spec/SamplePackages/FDA0000001"
+  RXP_PROVENANCE_PRESENT = "spec/SamplePackages/FDA0000014"
+  RXP_PROVENANCE_NOT_PRESENT = "spec/SamplePackages/FDA0000012"
   NO_DESCRIPTOR_TO_PARSE = "spec/SamplePackages"
 
   before(:each) do
@@ -34,6 +36,18 @@ describe ExternalProvenanceExtractor do
   it "should return nil if descriptor does not exist" do
     result = @extractor.extract_provenance NO_DESCRIPTOR_TO_PARSE
     
+    result.should == nil
+  end
+
+  it "should return rxp events" do
+    result = @extractor.extract_rxp_provenance RXP_PROVENANCE_PRESENT
+
+    result.should_not == nil
+  end
+
+  it "should return nil when there are no rxp events present" do
+    result = @extractor.extract_rxp_provenance RXP_PROVENANCE_NOT_PRESENT
+
     result.should == nil
   end
 end
