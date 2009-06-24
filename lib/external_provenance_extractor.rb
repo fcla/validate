@@ -122,7 +122,7 @@ class ExternalProvenanceExtractor
   
   # returns the result of Xpath query for external representation object nodes
   def get_external_rep_nodes document
-    document.find("//METS:mdWrap[not(@LABEL) or @LABEL!='RXP']//object[@xsi:type='representation']", NS_MAP)
+    document.find("//METS:mdWrap[not(@LABEL) or @LABEL!='RXP']//premis:object[@xsi:type='representation']", NS_MAP)
   end
 
   def get_sip_name
