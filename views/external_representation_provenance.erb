@@ -37,8 +37,10 @@
     </linkingObjectIdentifier>
   </event>
 
-  <% @rep.each do |node| %>
-    <%= node.to_s %>
+  <% if @rep %>
+    <% @rep.each do |node| %>
+      <%= node.to_s %>
+    <% end %>
   <% end %>
 
 </premis>
