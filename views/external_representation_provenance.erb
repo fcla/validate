@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<premis xmlns="info:lc/xmlns/premis-v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0">
+  <agent>
+    <agentIdentifier>
+      <agentIdentifierType>URI</agentIdentifierType>
+      <agentIdentifierValue>http://daitss/external_provenance_extraction</agentIdentifierValue>
+    </agentIdentifier>
+    <agentName>Validation Service</agentName>
+    <agentType>Web Service</agentType>
+  </agent>
+
+  <event>
+    <eventIdentifier>
+      <eventIdentifierType>Temporary Local</eventIdentifierType>
+      <eventIdentifierValue>1</eventIdentifierValue>
+    </eventIdentifier>
+    <eventType>Representation Retrieval</eventType>
+    <eventDateTime><%= Time.now %></eventDateTime>
+    <eventOutcomeInformation>
+      <eventOutcome>
+      <% if @rep.length > 0 %>
+        success
+      <% else %>
+        failure
+      <% end %>
+      </eventOutcome>
+    </eventOutcomeInformation>
+    <linkingAgentIdentifier>
+      <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
+      <linkingAgentIdentifierValue>http://daitss/external_provenance_extraction</linkingAgentIdentifierValue>
+    </linkingAgentIdentifier>
+    <linkingObjectIdentifier>
+      <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+      <linkingObjectIdentifierValue>
+        <%= @location %>
+      </linkingObjectIdentifierValue>
+    </linkingObjectIdentifier>
+  </event>
+
+  <% @rep.each do |node| %>
+    <%= node.to_s %>
+  <% end %>
+
+</premis>

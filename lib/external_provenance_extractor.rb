@@ -70,6 +70,26 @@ class ExternalProvenanceExtractor
       return rxp_node
   end
 
+  def extract_representation_provenance path_to_package
+
+      document = begin 
+        get_descriptor_document path_to_package
+      rescue => e
+        return nil
+      end
+      
+      result = []
+
+      rep_nodes = get_external_rep_nodes document
+
+      rep_nodes.each do |node|
+        result.push node
+      end
+
+      return result
+  end
+
+
   private
 
   # returns an LibXML document object representing the package descriptor
@@ -100,6 +120,11 @@ class ExternalProvenanceExtractor
     document.find_first("//METS:mdWrap[@LABEL='RXP']//premis:premis", NS_MAP)
   end
   
+  # returns the result of Xpath query for external representation object nodes
+  def get_external_rep_nodes document
+    document.find("//METS:mdWrap[not(@LABEL) or @LABEL!='RXP']//object[@xsi:type='representation']", NS_MAP)
+  end
+
   def get_sip_name
   end
   

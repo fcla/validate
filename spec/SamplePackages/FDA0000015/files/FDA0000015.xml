@@ -264,6 +264,18 @@
       </METS:mdWrap>
     </METS:digiprovMD>
 
+    <METS:digiprovMD ID="DPMD6">
+      <METS:mdWrap MDTYPE="PREMIS">
+        <METS:xmlData>
+          <object xsi:type="representation">
+            <objectIdentifier>
+              <objectIdentifierType>URI</objectIdentifierType>
+              <objectIdentifierValue>info:fcla/not_daitss/RIP001</objectIdentifierValue>
+            </objectIdentifier>
+          </object>
+        </METS:xmlData>
+      </METS:mdWrap>
+    </METS:digiprovMD>
   </METS:amdSec>
 
   <!-- It is not necessary to create multiple file groups for 
