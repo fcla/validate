@@ -31,13 +31,18 @@ class Provenance < Sinatra::Base
     # all clean, pull the external provenance
     extractor = ExternalProvenanceExtractor.new
     @external_p = extractor.extract_provenance url.path
-    erb :external_provenance
+
+    if @external_p["events"].length > 0 and @external_p["agents"].length > 0
+      erb :external_provenance
+    else
+      halt 404, "There is no external provenance to extract."
+    end
   end
 
   # Expects a query parameter named location to be a cgi escaped uri
   # of a package. Currently only file urls are supported.
   # Returns 400 if there is a problem with the URI.
-  get '/rxp_events' do
+  get '/rxp' do
 
     # make sure location exists
     halt 400, "Missing parameter: location" unless params[:location]
@@ -54,8 +59,13 @@ class Provenance < Sinatra::Base
 
     # all clean, pull the external provenance
     extractor = ExternalProvenanceExtractor.new
-    @external_p = extractor.extract_rxp_provenance url.path
-    erb :rxp_external_provenance
+    @rxp_node = extractor.extract_rxp_provenance url.path
+
+    if @rxp_node
+      erb :rxp_external_provenance
+    else
+      halt 404, "There is no RXP provenance to extract."
+    end
   end
 end
 

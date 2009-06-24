@@ -65,15 +65,9 @@ class ExternalProvenanceExtractor
         return nil
       end
       
-      result = []
+      rxp_node = get_external_rxp_node document
 
-      rxp_nodes = get_external_rxp_nodes document
-
-      rxp_nodes.each do |node|
-        result.push node
-      end
-
-      return result
+      return rxp_node
   end
 
   private
@@ -102,8 +96,8 @@ class ExternalProvenanceExtractor
   end
 
   # returns the result of Xpath query for external RXP nodes
-  def get_external_rxp_nodes document
-    document.find("mdWrap[@LABEL='RXP']", NS_MAP)
+  def get_external_rxp_node document
+    document.find_first("//METS:mdWrap[@LABEL='RXP']//premis:premis", NS_MAP)
   end
   
   def get_sip_name
