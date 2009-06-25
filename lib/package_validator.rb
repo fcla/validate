@@ -4,6 +4,7 @@ require 'libxml'
 require 'pp'
 require 'executor'
 require 'digest/md5'
+require 'digest/sha1'
 require 'configuration'
 require 'namespace'
 
@@ -396,7 +397,15 @@ class PackageValidator
         # if a described checksum is present in descriptor, compute the checksum for the file.
         # Otherwise, set variable computed_checksum == described_checksum == nil so that equality test in next statement passes
         if described_checksum
-          computed_checksum = compute_file_checksum full_path
+
+          if described_checksum.length == 32
+            computed_checksum = compute_file_checksum_md5 full_path
+          elsif described_checksum.length == 40
+            computed_checksum = compute_file_checksum_sha1 full_path
+          else
+            all_ok = false
+            next
+          end
 
           if computed_checksum.upcase == described_checksum.upcase
             @result["checksum_check"][aip_rel_path]["checksum_match"] = "success"
@@ -422,12 +431,21 @@ class PackageValidator
 
   # returns the MD5 checksum of file. Raises exception if checksum cannot be calculated
 
-  def compute_file_checksum path_to_file
+  def compute_file_checksum_md5 path_to_file
     raise StandardError, "File at path does not exist" unless File.exists? path_to_file
     raise StandardError, "Path provided does not refer to a file" unless File.file? path_to_file
     raise StandardError, "File is not readable" unless File.readable? path_to_file
 
     #TODO: we may want to calculate the MD5 hashes in chunks
     Digest::MD5.hexdigest(File.read(path_to_file))
+  end
+
+  def compute_file_checksum_sha1 path_to_file
+    raise StandardError, "File at path does not exist" unless File.exists? path_to_file
+    raise StandardError, "Path provided does not refer to a file" unless File.file? path_to_file
+    raise StandardError, "File is not readable" unless File.readable? path_to_file
+
+    #TODO: we may want to calculate the MD5 hashes in chunks
+    Digest::SHA1.hexdigest(File.read(path_to_file))
   end
 end

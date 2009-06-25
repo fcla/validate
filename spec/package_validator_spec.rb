@@ -19,6 +19,7 @@ describe PackageValidator do
   CONTAINS_SUBDIRECTORIES = "spec/SamplePackages/FDA0000008"
   INVALID_DESCRIPTOR = "spec/SamplePackages/FDA0000009"
   NOT_WELL_FORMED_DESCRIPTOR = "spec/SamplePackages/FDA0000010"
+  SHA1_CHECKSUMS = "spec/SamplePackages/FDA0000016"
 
   before(:each) do
     @validator = PackageValidator.new
@@ -465,5 +466,44 @@ describe PackageValidator do
 
     # checksum check
     hash["checksum_check"].should == nil
+  end
+
+  it "should validate SHA1_CHECKSUMS package, and reflect all checks passed" do
+    hash = @validator.validate_package SHA1_CHECKSUMS
+
+    hash["outcome"].should == "success"
+
+    hash["path_to_aip"].should == SHA1_CHECKSUMS
+
+    # package syntax checks
+    hash["syntax"]["descriptor_found"].should == "success"
+    hash["syntax"]["descriptor_is_file"].should == "success"
+    hash["syntax"]["content_file_found"].should == "success"
+    hash["syntax"]["package_is_directory"].should == "success"
+
+    # TODO: account/project verification not yet implemented"
+    
+    # descriptor should be valid
+    hash["descriptor_validation"]["descriptor_valid"].should == "success"
+
+    # undescribed file check
+    hash["undescribed_files"].length.should == 0
+
+    # virus check
+    hash["virus_check"]["files/daitss.jpg"]["outcome"].should == "success"
+    hash["virus_check"]["files/diamondlogo.jpg"]["outcome"].should == "success"
+
+    # checksum check
+    hash["checksum_check"]["files/daitss.jpg"]["checksum_match"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["checksum_match"].should == "success"
+
+    hash["checksum_check"]["files/diamondlogo.jpg"]["described"].should == "30C43B2C36580E8E5317EF6675CC33C8E4E691F9"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["computed"].should == "30C43B2C36580E8E5317EF6675CC33C8E4E691F9"
+
+    hash["checksum_check"]["files/daitss.jpg"]["described"].should == "D6F2986D85F07A4991F68A798B0F9862838BFE03"
+    hash["checksum_check"]["files/daitss.jpg"]["computed"].should == "D6F2986D85F07A4991F68A798B0F9862838BFE03"
+
+    hash["checksum_check"]["files/daitss.jpg"]["file_exists"].should == "success"
+    hash["checksum_check"]["files/diamondlogo.jpg"]["file_exists"].should == "success"
   end
 end
