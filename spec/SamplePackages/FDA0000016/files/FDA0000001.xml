@@ -147,10 +147,10 @@
 	    attribute is also used. Notice references to extension
 	    metadata sections using ADMID attribute-->
 	
-        <METS:file ADMID="TMD1" CHECKSUM="2de9ef79df730f93e40819625cf7bcb2" CHECKSUMTYPE="MD5" CREATED="2002-11-13T14:46:28Z" GROUPID="GID8" ID="FID1" MIMETYPE="image/jpeg" SIZE="3452">
+        <METS:file ADMID="TMD1" CHECKSUM="d6f2986d85f07a4991f68a798b0f9862838bfe03" CHECKSUMTYPE="SHA1" CREATED="2002-11-13T14:46:28Z" GROUPID="GID8" ID="FID1" MIMETYPE="image/jpeg" SIZE="3452">
           <METS:FLocat LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM" xlink:href="daitss.jpg"/>
         </METS:file>
-        <METS:file ADMID="TMD2" CHECKSUM="8c975de69a9419b8a02dc985839ea851" CHECKSUMTYPE="MD5" CREATED="2002-11-13T14:46:31Z" GROUPID="GID9" ID="FID2" MIMETYPE="image/jpeg" SIZE="19764">
+        <METS:file ADMID="TMD2" CHECKSUM="30c43b2c36580e8e5317ef6675cc33c8e4e691f9" CHECKSUMTYPE="SHA1" CREATED="2002-11-13T14:46:31Z" GROUPID="GID9" ID="FID2" MIMETYPE="image/jpeg" SIZE="19764">
           <METS:FLocat LOCTYPE="OTHER" OTHERLOCTYPE="SYSTEM" xlink:href="diamondlogo.jpg"/>
         </METS:file>
       </METS:fileGrp>
