@@ -4,7 +4,7 @@
       <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
     </eventIdentifier>
     <eventType>Descriptor is valid</eventType>
-    <eventDateTime><%= Time.now.xmlschema.xmlschema %></eventDateTime>
+    <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
     <eventOutcomeInformation>
       <eventOutcome>
         <%= @result['descriptor_validation']['descriptor_valid'] %>  
