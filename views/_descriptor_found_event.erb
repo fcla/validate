@@ -4,7 +4,7 @@
       <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
     </eventIdentifier>
     <eventType>SIP Descriptor Present</eventType>
-    <eventDateTime><%= Time.now %></eventDateTime>
+    <eventDateTime><%= Time.now.xmlschema.xmlschema %></eventDateTime>
     <eventOutcomeInformation>
       <eventOutcome>
         <%= @result['syntax']['descriptor_found'] %>  

@@ -5,7 +5,7 @@
       <eventIdentifierValue><%= @auto_incrementer.get_next %></eventIdentifierValue>
     </eventIdentifier>
     <eventType>Described File Present</eventType>
-    <eventDateTime><%= Time.now %></eventDateTime>
+    <eventDateTime><%= Time.now.xmlschema.xmlschema %></eventDateTime>
     <eventOutcomeInformation>
       <eventOutcome>
         <%= value['file_exists'] %>  
