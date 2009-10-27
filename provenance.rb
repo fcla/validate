@@ -32,8 +32,8 @@ class Provenance < Sinatra::Base
     extractor = ExternalProvenanceExtractor.new
     @location = params[:location]
     @external_p = extractor.extract_provenance url.path
+    halt 404, "No external provenance found" if @external_p["events"].empty?
     erb :external_provenance
-
   end
 
   # Expects a query parameter named location to be a cgi escaped uri
