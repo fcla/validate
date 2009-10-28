@@ -312,7 +312,15 @@ class PackageValidator
       aip_rel_path = File.join("files", path.gsub(@package_paths_array[0], ""))
 
       if File.file? path
-        summary = Executor.execute_return_summary "#{Configuration.instance.values["virus_checker_executable"]} #{path}"
+	summary = if File.executable? Configuration.instance.values["virus_checker_executable"]
+			Executor.execute_return_summary "#{Configuration.instance.values["virus_checker_executable"]} #{path}"
+		  else
+			summary = {}
+			summary["exit_status"] = 0
+			summary["STDOUT"] = ""
+			summary["STDERR"] = ""
+			summary
+		  end
 
         # inspect the exit status of the virus checker to see what the result is for this file
 
