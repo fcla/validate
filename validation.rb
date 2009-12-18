@@ -36,6 +36,7 @@ class Validation < Sinatra::Base
     @auto_incrementer = AutoIncrementer.new
     erb :validation_events
   end
+
 end
 
 Validation.run! if __FILE__ == $0
