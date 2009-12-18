@@ -8,6 +8,9 @@ require 'digest/sha1'
 require 'configuration'
 require 'namespace'
 
+include LibXML
+XML.default_keep_blanks = false
+
 # Class PackageValidator
 # Author: Manny Rodriguez
 #
@@ -43,19 +46,15 @@ class PackageValidator
     @descriptor_path = ""
     @descriptor_document
     @result = {}
-
-    # tell the LibXML parser to ignore whitespace
-    LibXML::XML.default_keep_blanks = false
   end
 
   # runs all validation tasks on a package, building a hash @result as the validation progresses.
   # hash is returned after validation completes.
   # if a failure prevents the running of all checks, a partial hash containing all checks performed is returned
-  
   def validate_package(path_to_package)
-    begin
 
-      @result['path_to_aip'] = path_to_package
+    begin
+      @result['path_to_wip'] = path_to_package
       
       aip_desc_path = File.join path_to_package, 'descriptor.xml'
       raise ValidationFailed, "aip descriptor not found" unless File.exist? aip_desc_path
