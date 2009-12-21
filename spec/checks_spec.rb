@@ -24,12 +24,12 @@ describe Validation::Checks do
       subject.datafiles.first.compare_checksum?.should be_false
     end
 
-    it "should return nil for files that are undescribed" do
+    it "should return nil/raise exception for files that are undescribed" do
       df = subject.new_datafile
       df.open("a") { |io| io.puts "oops" }
       subject.datafiles.last.compare_checksum?.should be_nil
     end
-
+    # make sure false and nil are mot mixed
   end
   
 end
