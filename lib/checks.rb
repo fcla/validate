@@ -1,9 +1,50 @@
 require 'datafile'
+require 'libxml'
+require 'digest/sha1'
+require 'digest/md5'
+require 'xmlns'
+
+include LibXML
+
+class Wip
+
+  def sip_descriptor
+    datafiles.find { |df| df['sip-path'] == "#{metadata['sip-name']}.xml" } 
+  end
+
+  def described_datafiles
+    doc = sip_descriptor.open { |io| XML::Document.io io }
+    sip_paths = doc.find("//M:file/M:FLocat/@xlink:href", NS_PREFIX).map { |node| node.value }
+    datafiles.select { |df| sip_paths.include? df['sip-path'] }
+  end
+
+end
 
 class DataFile
 
   def compare_checksum?
-    descriptor = wip.datafiles.find { |df| "#{df['sip-path']}.xml" == wip['sip-name'] }
+    raise "#{self} is undescribed" unless wip.described_datafiles.include? self
+    doc = wip.sip_descriptor.open { |io| XML::Document.io io }
+    file_node = doc.find_first("//mets:file[mets:FLocat/@xlink:href = '#{metadata["sip-path"]}']", 
+                               "mets" => "http://www.loc.gov/METS/", 
+                               "xlink" => "http://www.w3.org/1999/xlink")
+
+    file_node['CHECKSUM'] == open do |io| 
+      case file_node["CHECKSUMTYPE"]
+      when "MD5" then Digest::MD5.hexdigest io.read
+      when "SHA-1" then Digest::SHA1.hexdigest io.read
+      when nil
+
+        case file_node["CHECKSUM"]
+        when %r{[a-fA-F0-9]{40}} then Digest::MD5.hexdigest io.read
+        when %r{[a-fA-F0-9]{32}} then  Digest::SHA1.hexdigest io.read
+        else raise "Missing checksum type"
+        end
+
+      else raise "Unsupported checksum type: #{file_node["CHECKSUMTYPE"]}"
+      end
+    end
+
   end
 
 end
