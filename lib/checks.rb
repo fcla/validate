@@ -3,6 +3,7 @@ require 'libxml'
 require 'digest/sha1'
 require 'digest/md5'
 require 'xmlns'
+require 'jxmlvalidator'
 
 include LibXML
 
@@ -10,6 +11,14 @@ class Wip
 
   def sip_descriptor
     datafiles.find { |df| df['sip-path'] == "#{metadata['sip-name']}.xml" } 
+  end
+
+  attr_accessor :sip_descriptor_errors
+
+  def sip_descriptor_valid?
+    validator = sip_descriptor.open { |io| JValidator.new io.read }
+    @sip_descriptor_errors = validator.results
+    @sip_descriptor_errors.empty?
   end
 
   def described_datafiles
@@ -21,6 +30,7 @@ class Wip
 end
 
 class DataFile
+
 
   def compare_checksum?
     raise "#{self} is undescribed" unless wip.described_datafiles.include? self
@@ -76,7 +86,8 @@ module Validation
       # extract the account and return it
     end
 
-    def sip_descriptor_ok?
+    # Returns true if the sip descriptor is valid, false otherwise. errors are aggregated into sip_descriptor_errors
+    def sip_descriptor_valid?
       # validates package descriptor with external Java validator.
       # if descriptor fails validation, exception is raised and processing stops.
       # Any errors arising from validation will be recorded in @result

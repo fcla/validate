@@ -57,8 +57,16 @@ describe Validation::Checks do
   end
 
   describe "validating the sip descriptor" do
-    it "should return true for a valid sip descriptor"
-    it "should return false for an invalid sip descriptor"
+    it "should return true for a valid sip descriptor" do
+      subject.sip_descriptor_valid?.should be_true
+    end
+
+    it "should return false for an invalid sip descriptor" do
+        doc = subject.sip_descriptor.open { |io| XML::Document.io io }
+        doc.find("//@ID").each { |attr| attr.remove! }
+        subject.sip_descriptor.open("w") { |io| io.write doc.to_s }
+        subject.sip_descriptor_valid?.should be_false
+    end
   end
   
 end
