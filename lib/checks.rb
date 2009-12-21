@@ -7,107 +7,47 @@ require 'jxmlvalidator'
 
 include LibXML
 
-class Wip
-
-  def sip_descriptor
-    datafiles.find { |df| df['sip-path'] == "#{metadata['sip-name']}.xml" } 
-  end
-
-  attr_accessor :sip_descriptor_errors
-
-  def sip_descriptor_valid?
-    validator = sip_descriptor.open { |io| JValidator.new io.read }
-    @sip_descriptor_errors = validator.results
-    @sip_descriptor_errors.empty?
-  end
-
-  def described_datafiles
-    doc = sip_descriptor.open { |io| XML::Document.io io }
-    sip_paths = doc.find("//M:file/M:FLocat/@xlink:href", NS_PREFIX).map { |node| node.value }
-    datafiles.select { |df| sip_paths.include? df['sip-path'] }
-  end
-
-end
-
-class DataFile
-
-
-  def compare_checksum?
-    raise "#{self} is undescribed" unless wip.described_datafiles.include? self
-    doc = wip.sip_descriptor.open { |io| XML::Document.io io }
-    file_node = doc.find_first("//mets:file[mets:FLocat/@xlink:href = '#{metadata["sip-path"]}']", 
-                               "mets" => "http://www.loc.gov/METS/", 
-                               "xlink" => "http://www.w3.org/1999/xlink")
-
-    file_node['CHECKSUM'] == open do |io| 
-      case file_node["CHECKSUMTYPE"]
-      when "MD5" then Digest::MD5.hexdigest io.read
-      when "SHA-1" then Digest::SHA1.hexdigest io.read
-      when nil
-
-        case file_node["CHECKSUM"]
-        when %r{[a-fA-F0-9]{40}} then Digest::MD5.hexdigest io.read
-        when %r{[a-fA-F0-9]{32}} then  Digest::SHA1.hexdigest io.read
-        else raise "Missing checksum type"
-        end
-
-      else raise "Unsupported checksum type: #{file_node["CHECKSUMTYPE"]}"
-      end
-    end
-
-  end
-
-end
+require 'wip/sip_descriptor'
+require 'datafile/checksum'
+require 'xmlns'
 
 module Validation
 
   module Checks
 
+    # Returns true if sip descriptor exists and it is not the only file
     def syntax_ok?
-      # don't worry about descriptor because wip will take care of that
-
-      # checks that a descriptor of form PACKAGE_NAME.xml/XML exists
-      # on success, adds appropriate values to hash
-      # on failure, adds appropriate values to hash and raises exception
-
-      # checks that descriptor is a file
-      # on success, adds appropriate values to hash
-      # on failure, adds appropriate values to hash and raises exception
-
-      # checks that at least one content file is present in the package
-      # on success, adds appropriate values to hash
-      # on failure, adds appropriate values to hash and raises exception
-
-      # checks that the specified account/project in the package is valid
-      # TODO: implement
-    end
-
-    def account
-      # extract the account and return it
+      not sip_descriptor.nil? and not (datafiles - sip_descriptor).empty?
     end
 
     # Returns true if the sip descriptor is valid, false otherwise. errors are aggregated into sip_descriptor_errors
     def sip_descriptor_valid?
-      # validates package descriptor with external Java validator.
-      # if descriptor fails validation, exception is raised and processing stops.
-      # Any errors arising from validation will be recorded in @result
+      validator = sip_descriptor.open { |io| JValidator.new io.read }
+      @sip_descriptor_errors = validator.results
+      @sip_descriptor_errors.empty?
+    end
+    attr_accessor :sip_descriptor_errors
+
+    def account
+      doc = sip_descriptor.open { |io| XML::Document.io io }
+      name_node = doc.find_first "//M:agent[@ROLE='OTHER' and @OTHERROLE='SUBMITTER']/M:name", NS_PREFIX
+      name_node.value
     end
 
+    # Return a list of datafiles that are not described
     def undescribed_files
-      # TODO build a list of files that do not exist in the sip descriptor
+      datafiles - descriped_datafiles
     end
 
+    # Return a list of datafiles that contain virii
     def virus_check_results
-      # maybe instead of messing with bin/true we make a VC interface and let whoever implement it
-    end
 
-    def checksum_check
-      # files.each do ||
-      # checks content file checksums against descriptor specified checksum values
-      # returns true if all match, false otherwise
-      # TODO: check CHECKSUMTYPE attribute, and calcuate accordingly
     end
 
   end
 
+end
+
+class Wip
+  include Validation::Checks
 end
