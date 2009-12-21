@@ -54,7 +54,11 @@ describe Validation::Checks do
       subject.described_datafiles.each { |df| df.compare_checksum? }.should_not raise_error("Missing checksum type")
     end
 
+  end
 
+  describe "validating the sip descriptor" do
+    it "should return true for a valid sip descriptor"
+    it "should return false for an invalid sip descriptor"
   end
   
 end
