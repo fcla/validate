@@ -1,0 +1,13 @@
+<?xml version = "1.0" encoding="UTF-8"?>
+<premis xmlns="info:lc/xmlns/premis-v2">
+
+  <%= erb :sip_descriptor_presence, :layout => false %>
+<% if @wip.sip_descriptor %>
+  <%= erb :sip_descriptor_validation, :layout => false %>
+<% end %>
+
+ <%= erb :content_file_presence, :layout => false %>
+ <%= erb :checksum_comparison, :layout => false %>
+ <% erb :agent, :layout => p%>
+
+</premis>

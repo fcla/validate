@@ -1,0 +1,33 @@
+<event>
+  <eventIdentifier>
+    <eventIdentifierType>URI</eventIdentifierType>
+    <eventIdentifierValue><%= URI.join(@wip.uri, 'event', 'checksum-comparison').to_s %></eventIdentifierValue>
+  </eventIdentifier>
+  <eventType>checksum comparison</eventType>
+  <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
+  <eventOutcomeInformation>
+  <% 
+    checksum_info = @wip.described_datafiles.map { |df| [ df['sip-path'] ] + df.checksum_info }
+    matches, mismatches = checksum_info.partition { |(path, desc, comp)| desc == comp } 
+  %>
+  <eventOutcome><%=  mismatches.empty? ? 'match' : 'mismatch' %></eventOutcome>
+    <eventOutcomeDetail>
+      <eventOutcomeDetailNote>
+      <% matches.each do |df, desc, comp| %>
+        <%= df['sip-path'] %>, <%= desc %>
+      <% end %>
+      <% mismatches.each do |df, desc, comp| %>
+        <%= df['sip-path'] %>, sip descriptor: <%= desc %>, computed: <%= comp %>
+      <% end %>
+      </eventOutcomeDetailNote>
+    </eventOutcomeDetail>
+  </eventOutcomeInformation>
+  <linkingObjectIdentifier>
+    <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+    <linkingObjectIdentifierValue><%= @wip.uri %></linkingObjectIdentifierValue>
+  </linkingObjectIdentifier>
+  <linkingAgentIdentifier>
+    <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
+    <linkingAgentIdentifierValue>info:fcla/archive/service/validation</linkingAgentIdentifierValue>
+  </linkingAgentIdentifier>
+</event>

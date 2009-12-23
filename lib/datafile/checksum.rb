@@ -15,7 +15,7 @@ class DataFile
       case file_node["CHECKSUMTYPE"]
       when "MD5" then Digest::MD5.hexdigest io.read
       when "SHA-1" then Digest::SHA1.hexdigest io.read
-      when nil then infer file_node["CHECKSUM"]
+      when nil then infer expected_md
       else raise "Unsupported checksum type: #{file_node["CHECKSUMTYPE"]}"
       end
     end

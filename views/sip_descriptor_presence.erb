@@ -1,0 +1,19 @@
+<event>
+  <eventIdentifier>
+    <eventIdentifierType>URI</eventIdentifierType>
+    <eventIdentifierValue><%= URI.join(@wip.uri, 'event', 'sip-descriptor-presence').to_s %></eventIdentifierValue>
+  </eventIdentifier>
+  <eventType>sip descriptor presence</eventType>
+  <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
+  <eventOutcomeInformation>
+    <eventOutcome><%= @wip.sip_descriptor ? 'present' : 'missing' %></eventOutcome>
+  </eventOutcomeInformation>
+  <linkingObjectIdentifier>
+    <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+    <linkingObjectIdentifierValue><%= @wip.uri %></linkingObjectIdentifierValue>
+  </linkingObjectIdentifier>
+  <linkingAgentIdentifier>
+    <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
+    <linkingAgentIdentifierValue>info:fcla/archive/service/validation</linkingAgentIdentifierValue>
+  </linkingAgentIdentifier>
+</event>

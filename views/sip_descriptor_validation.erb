@@ -1,0 +1,28 @@
+<event>
+  <eventIdentifier>
+    <eventIdentifierType>URI</eventIdentifierType>
+    <eventIdentifierValue><%= URI.join(@wip.uri, 'event', 'sip-descriptor-validation').to_s %></eventIdentifierValue>
+  </eventIdentifier>
+  <eventType>sip descriptor validation</eventType>
+  <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
+  <eventOutcomeInformation>
+    <eventOutcome><%= @wip.sip_descriptor_valid? ? 'valid' : 'invalid' %></eventOutcome>
+  <% if @wip.sip_descriptor_valid? %>
+    <eventOutcomeDetail>
+      <eventOutcomeDetailNote>
+      <% @wip.sip_descriptor_errors.each do |e| %>
+        <%= "line #{e[:line]}: #{e[:message]}" %>
+      <% end %>
+      </eventOutcomeDetailNote>
+    </eventOutcomeDetail>
+  <% end %>
+  </eventOutcomeInformation>
+  <linkingObjectIdentifier>
+    <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+    <linkingObjectIdentifierValue><%= @wip.uri %></linkingObjectIdentifierValue>
+  </linkingObjectIdentifier>
+  <linkingAgentIdentifier>
+    <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
+    <linkingAgentIdentifierValue>info:fcla/archive/service/validation</linkingAgentIdentifierValue>
+  </linkingAgentIdentifier>
+</event>

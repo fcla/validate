@@ -1,4 +1,5 @@
 require 'wip'
+require 'jxmlvalidation'
 require 'libxml'
 require 'xmlns'
 
@@ -11,24 +12,32 @@ class Wip
     datafiles.find { |df| df['sip-path'] == "#{metadata['sip-name']}.xml" } 
   end
 
+  # Returns a list of datafiles that are not the descriptor
+  def content_files
+    datafiles.reject { |df| df == sip_descriptor }
+  end
+
   # Returns an array of datafiles that are described in the sip_descriptor
   def described_datafiles
-    doc = sip_descriptor.open { |io| XML::Document.io io }
-    sip_paths = doc.find("//M:file/M:FLocat/@xlink:href", NS_PREFIX).map { |node| node.value }
-    datafiles.select { |df| sip_paths.include? df['sip-path'] }
+    if sip_descriptor
+      doc = sip_descriptor.open { |io| XML::Document.io io }
+      sip_paths = doc.find("//M:file/M:FLocat/@xlink:href", NS_PREFIX).map { |node| node.value }
+      datafiles.select { |df| sip_paths.include? df['sip-path'] }
+    else
+      []
+    end
   end
 
   # Returns true if the sip descriptor is valid, false otherwise. errors are aggregated into sip_descriptor_errors
   def sip_descriptor_valid?
-    validator = sip_descriptor.open { |io| JValidator.new io.read }
-    @sip_descriptor_errors = validator.results
+    @sip_descriptor_errors = sip_descriptor.open { |io| JValidation.new(io.read).results }
     @sip_descriptor_errors.empty?
   end
   attr_accessor :sip_descriptor_errors
 
   # Return a list of datafiles that are not described
   def undescribed_files
-    datafiles - descriped_datafiles
+    datafiles - described_datafiles
   end
 
 end
