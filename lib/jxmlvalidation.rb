@@ -1,24 +1,27 @@
 require 'tempfile'
 require 'rjb'
 
-class JValidator
+# Represents a Validation of XML
+class JValidation
+
+  private
 
   JAR_FILE = File.join File.dirname(__FILE__), '..', 'ext', 'xmlvalidator.jar'
 
+  ENV['CLASSPATH'] = if ENV['CLASSPATH']
+                       "#{JAR_FILE}:#{ENV['CLASSPATH']}"
+                     else
+                       JAR_FILE
+                     end
+
+  J_File = Rjb.import 'java.io.File' 
+  J_Validator = Rjb.import 'edu.fcla.da.xml.Validator'
+
+  public
+
   def initialize src
     @src = src
-
-    # setup rjb validator
-    ENV['CLASSPATH'] = if ENV['CLASSPATH']
-                         "#{JAR_FILE}:#{ENV['CLASSPATH']}"
-                       else
-                         JAR_FILE
-                       end
-
-    # can probably make this a class variable
-    @j_File = Rjb.import 'java.io.File' 
-    @j_Validator = Rjb.import 'edu.fcla.da.xml.Validator'
-    @jvalidator = @j_Validator.new
+    @jvalidator = J_Validator.new
   end
 
   def results
@@ -29,7 +32,7 @@ class JValidator
     tio.close
 
     # java code
-    jfile = @j_File.new tio.path
+    jfile = J_File.new tio.path
     jchecker = @jvalidator.validate jfile
 
     tio.unlink
