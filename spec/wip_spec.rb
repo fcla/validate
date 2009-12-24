@@ -1,7 +1,6 @@
 require 'wip/create'
 require 'uuid'
 require 'wip/sip_descriptor'
-require 'jxmlvalidator'
 
 describe Wip do
 
