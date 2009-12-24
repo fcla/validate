@@ -1,12 +1,5 @@
 require 'rake'
-require 'rake/rdoctask'
-require 'spec/rake/spectask'
 
-
-Spec::Rake::SpecTask.new do |t|
-  t.libs << 'lib'
-  t.libs << 'spec'
-  # t.rcov = true
-end
-
-task :default => [:spec]
+TASKS_DIR = File.join File.dirname(__FILE__), 'tasks'
+Dir[File.join(TASKS_DIR, '**', '*.rb')].each { |f| require f }
+#task :default => [:spec]
