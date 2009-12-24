@@ -1,16 +1,17 @@
 require 'rake/gempackagetask'
 
 spec = Gem::Specification.new do |spec|
-  spec.name = "daitss-ingest"
-  spec.version = '0.0.0'
-  spec.summary = "DAITSS 2 ingest"
-  spec.authors = ["Francesco Lazzarino", "Emmanuel Rodriguez"]
-  spec.files = ["Rakefile"] +
-    Dir["bin/*", "features/**/*", "lib/*", "spec/*", "tasks/*"]
-  spec.executables << 'ingest'
-  spec.has_rdoc = true
+  spec.name = "daitss-validate"
+  spec.version = '2.0.0'
+  spec.summary = "Validation service for DAITSS 2"
+  spec.authors = ["Emmanuel Rodriguez", "Francesco Lazzarino"]
+  spec.files = Dir["spec/*", "lib/*", "bin/*", "etc/*", "Rakefile", "tasks/*", "views/*"]
+  spec.add_dependency "sinatra"
+  spec.bindir = 'bin'
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
   pkg.need_tar = true
 end
+
+
