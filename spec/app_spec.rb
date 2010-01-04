@@ -1,5 +1,5 @@
-require 'wip/create'
 require 'spec_helper'
+require 'wip/create'
 require 'validate_app'
 
 describe Validation::App do
@@ -15,6 +15,9 @@ describe Validation::App do
     last_response.status.should == 200
 
     get "/results", "location" => URI.join('xxx:/', @wip.path).to_s 
+    last_response.status.should == 400
+
+    get "/results", "location" => 'C:\not a uri'
     last_response.status.should == 400
   end
 

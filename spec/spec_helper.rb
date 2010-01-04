@@ -4,6 +4,8 @@ require 'uuid'
 require 'xmlns'
 require 'sinatra'
 
+UUID_GENERATOR = UUID.new
+
 Spec::Runner.configure do |conf|
   conf.include Rack::Test::Methods
 end
@@ -32,5 +34,3 @@ Spec::Matchers.define :have_event do |options|
   end
 
 end
-
-UUID_GENERATOR = UUID.new

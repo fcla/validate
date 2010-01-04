@@ -36,9 +36,4 @@ class Wip
   end
   attr_accessor :sip_descriptor_errors
 
-  # Return a list of datafiles that are not described
-  def undescribed_files
-    datafiles - described_datafiles
-  end
-
 end
