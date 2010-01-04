@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'sinatra'
+require 'wip'
 require 'wip/sip_descriptor'
 require 'datafile/checksum'
 
