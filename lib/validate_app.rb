@@ -27,7 +27,7 @@ module Validation
       error 400, "Unsupported URL scheme: #{url.scheme}" unless url.scheme == 'file'
 
       @wip = begin 
-              Wip.new url.path, 'test:/'
+              Wip.new url.path
             rescue => e
               error 400, e
             end

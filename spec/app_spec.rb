@@ -1,47 +1,13 @@
-require 'spec'
-require 'rack/test'
-require 'validate_app'
 require 'wip/create'
-require 'uuid'
-require 'xmlns'
-require 'jxmlvalidation'
-
-Spec::Runner.configure do |conf|
-  conf.include Rack::Test::Methods
-end
-
-set :environment, :test
-
-def app
-  Validation::App
-end
-
-Spec::Matchers.define :have_event do |options|
-
-  match do |res|
-    doc = XML::Document.string res.body
-    xpath = %Q{//P:event[ P:eventType = '#{options[:type]}' and 
-                          P:eventOutcomeInformation/P:eventOutcome = '#{options[:outcome]}' ]} 
-    doc.find_first xpath, NS_PREFIX
-  end
-
-  failure_message_for_should do |res|
-    "expected response to have a premis event: #{options.inspect}"
-  end
-
-  failure_message_for_should_not do |res|
-    "expected response to not have a premis event: #{options.inspect}"
-  end
-
-end
-
-UUID_GENERATOR = UUID.new
+require 'spec_helper'
+require 'validate_app'
 
 describe Validation::App do
 
   before :each do
+    uuid = UUID_GENERATOR.generate
     sip = Sip.new File.join(File.dirname(__FILE__), 'sips', 'ateam')
-    @wip = Wip.make_from_sip "/tmp/#{ UUID_GENERATOR.generate }", 'test:/', sip
+    @wip = Wip.make_from_sip "/tmp/#{ uuid }", URI.join("test:/", uuid).to_s, sip
   end
 
   it "should detect a good wip" do
