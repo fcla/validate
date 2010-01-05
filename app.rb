@@ -9,7 +9,7 @@ require 'datafile/checksum'
 module Validation
 
   class App < Sinatra::Base
-    set :root, File.join(File.dirname(__FILE__), '..')
+    set :root, File.dirname(__FILE__)
 
     # Expects a query parameter named location to be a cgi escaped uri
     # of a package. Currently only file urls are supported.

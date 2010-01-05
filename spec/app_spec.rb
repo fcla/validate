@@ -1,6 +1,6 @@
 require 'spec_helper'
 require 'wip/create'
-require 'validate_app'
+require File.join(File.dirname(__FILE__), '..', 'app')
 
 describe Validation::App do
 
