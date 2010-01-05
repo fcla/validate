@@ -1,29 +1,12 @@
 <event>
   <eventIdentifier>
     <eventIdentifierType>URI</eventIdentifierType>
-    <eventIdentifierValue><%= URI.join(@wip.uri, 'event', 'content-file-presence').to_s %></eventIdentifierValue>
+    <eventIdentifierValue><%= URI.join(@wip.uri, 'event', 'comprehensive-validation').to_s %></eventIdentifierValue>
   </eventIdentifier>
-  <eventType>content file presence</eventType>
+  <eventType>comprehensive validation</eventType>
   <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
   <eventOutcomeInformation>
-  <eventOutcome><%= 
-  empty = @wip.content_files.empty?
-  
-  if empty
-    @any_errors = true
-    'missing'
-  else
-    'present'
-  end %></eventOutcome>
-  <% unless @wip.content_files.empty? %>
-    <eventOutcomeDetail>
-      <eventOutcomeDetailNote>
-      <% @wip.content_files.each do |df| %>
-        <%= df['sip-path'] %>
-      <% end %>
-      </eventOutcomeDetailNote>
-    </eventOutcomeDetail>
-  <% end %>
+    <eventOutcome><%= @any_errors ? 'failure' : 'success' %></eventOutcome>
   </eventOutcomeInformation>
   <linkingObjectIdentifier>
     <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>

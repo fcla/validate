@@ -6,7 +6,14 @@
   <eventType>sip descriptor validation</eventType>
   <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
   <eventOutcomeInformation>
-    <eventOutcome><%= @wip.sip_descriptor_valid? ? 'valid' : 'invalid' %></eventOutcome>
+  <eventOutcome><%= 
+  valid = @wip.sip_descriptor_valid?
+  if valid
+    'valid'
+  else
+    @any_errors = true
+    'invalid'
+  end %></eventOutcome>
   <% if @wip.sip_descriptor_valid? %>
     <eventOutcomeDetail>
       <eventOutcomeDetailNote>

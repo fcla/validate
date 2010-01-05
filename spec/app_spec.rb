@@ -24,15 +24,18 @@ describe Validation::App do
   it "should detect the sip descriptor" do
     get "/results", "location" => URI.join('file:/', @wip.path).to_s
     last_response.should have_event(:type => 'sip descriptor presence', :outcome => 'present')
+    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'success');
 
     @wip.sip_descriptor['sip-path'] = 'xxx'
     get "/results", "location" => URI.join('file:/', @wip.path).to_s
     last_response.should have_event(:type => 'sip descriptor presence', :outcome => 'missing')
+    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'failure');
   end
 
   it "should validate the sip descriptor" do
     get "/results", "location" => URI.join('file:/', @wip.path).to_s
     last_response.should have_event(:type => 'sip descriptor validation', :outcome => 'valid')
+    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'success');
 
     xml = @wip.sip_descriptor.open do |io| 
       doc = XML::Document.io io
@@ -44,6 +47,7 @@ describe Validation::App do
 
     get "/results", "location" => URI.join('file:/', @wip.path).to_s
     last_response.should have_event(:type => 'sip descriptor validation', :outcome => 'invalid')
+    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'failure');
   end
 
   it "should validate the sip account"
@@ -51,10 +55,12 @@ describe Validation::App do
   it "should detect at least one data file" do
     get "/results", "location" => URI.join('file:/', @wip.path).to_s
     last_response.should have_event(:type => 'content file presence', :outcome => 'present')
+    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'success');
 
     FileUtils::rm_r @wip.datafiles.reject { |df| df == @wip.sip_descriptor }.map { |df| File.join @wip.path, 'files', df.id }
     get "/results", "location" => URI.join('file:/', @wip.path).to_s
     last_response.should have_event(:type => 'content file presence', :outcome => 'missing')
+    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'failure');
   end
 
   it "should compare checksums for sip described files" do
@@ -63,4 +69,5 @@ describe Validation::App do
   end
 
   it "should virus check each file"
+
 end
