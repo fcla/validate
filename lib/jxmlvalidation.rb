@@ -6,17 +6,11 @@ class JValidation
 
   private
 
-  JAR_FILE = File.join File.dirname(__FILE__), '..', 'ext', 'xmlvalidator.jar'
-
-  ENV['CLASSPATH'] = if ENV['CLASSPATH']
-                       "#{JAR_FILE}:#{ENV['CLASSPATH']}"
-                     else
-                       JAR_FILE
-                     end
-
+  jar_file = File.expand_path File.join(File.dirname(__FILE__), '..', 'ext', 'xmlvalidator.jar')
+  Rjb::load jar_file
   J_File = Rjb.import 'java.io.File' 
   J_Validator = Rjb.import 'edu.fcla.da.xml.Validator'
-
+  
   public
 
   def initialize src
