@@ -8,12 +8,12 @@
   <eventOutcomeInformation>
     <eventOutcome><%= @any_errors ? 'failure' : 'success' %></eventOutcome>
   </eventOutcomeInformation>
-  <linkingObjectIdentifier>
-    <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
-    <linkingObjectIdentifierValue><%= @wip.uri %></linkingObjectIdentifierValue>
-  </linkingObjectIdentifier>
   <linkingAgentIdentifier>
     <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
     <linkingAgentIdentifierValue>info:fcla/archive/service/validation</linkingAgentIdentifierValue>
   </linkingAgentIdentifier>
+  <linkingObjectIdentifier>
+    <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+    <linkingObjectIdentifierValue><%= @wip.uri %></linkingObjectIdentifierValue>
+  </linkingObjectIdentifier>
 </event>
