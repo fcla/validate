@@ -1,7 +1,7 @@
 <event>
   <eventIdentifier>
     <eventIdentifierType>URI</eventIdentifierType>
-    <eventIdentifierValue><%= URI.join(@wip.uri, 'event', 'sip-descriptor-presence').to_s %></eventIdentifierValue>
+    <eventIdentifierValue><%= "#{@wip.uri}/event/sip-descriptor-presence" %></eventIdentifierValue>
   </eventIdentifier>
   <eventType>sip descriptor presence</eventType>
   <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
