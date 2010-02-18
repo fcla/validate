@@ -7,14 +7,14 @@ describe Validation::App do
   before :each do
     uuid = UUID_GENERATOR.generate
     sip = Sip.new File.join(File.dirname(__FILE__), 'sips', 'ateam')
-    @wip = Wip.make_from_sip "/tmp/#{ uuid }", URI.join("test:/", uuid).to_s, sip
+    @wip = Wip.make_from_sip "/tmp/#{ uuid }", "test:/#{uuid}", sip
   end
 
   it "should detect a good wip" do
-    get "/results", "location" => URI.join('file:/', @wip.path).to_s
+    get "/results", "location" => "file:#{@wip.path}"
     last_response.status.should == 200
 
-    get "/results", "location" => URI.join('xxx:/', @wip.path).to_s 
+    get "/results", "location" => "xxx:/#{@wip.path}"
     last_response.status.should == 400
 
     get "/results", "location" => 'C:\not a uri'
@@ -22,18 +22,18 @@ describe Validation::App do
   end
 
   it "should detect the sip descriptor" do
-    get "/results", "location" => URI.join('file:/', @wip.path).to_s
+    get "/results", "location" => "file:#{@wip.path}"
     last_response.should have_event(:type => 'sip descriptor presence', :outcome => 'present')
     last_response.should have_event(:type => 'comprehensive validation', :outcome => 'success');
 
     @wip.sip_descriptor['sip-path'] = 'xxx'
-    get "/results", "location" => URI.join('file:/', @wip.path).to_s
+    get "/results", "location" => "file:#{@wip.path}"
     last_response.should have_event(:type => 'sip descriptor presence', :outcome => 'missing')
     last_response.should have_event(:type => 'comprehensive validation', :outcome => 'failure');
   end
 
   it "should validate the sip descriptor" do
-    get "/results", "location" => URI.join('file:/', @wip.path).to_s
+    get "/results", "location" => "file:#{@wip.path}"
     last_response.should have_event(:type => 'sip descriptor validation', :outcome => 'valid')
     last_response.should have_event(:type => 'comprehensive validation', :outcome => 'success');
 
@@ -45,7 +45,7 @@ describe Validation::App do
 
     @wip.sip_descriptor.open('w') { |io| io.write xml }
 
-    get "/results", "location" => URI.join('file:/', @wip.path).to_s
+    get "/results", "location" => "file:#{@wip.path}"
     last_response.should have_event(:type => 'sip descriptor validation', :outcome => 'invalid')
     last_response.should have_event(:type => 'comprehensive validation', :outcome => 'failure');
   end
@@ -53,18 +53,18 @@ describe Validation::App do
   it "should validate the sip account"
   
   it "should detect at least one data file" do
-    get "/results", "location" => URI.join('file:/', @wip.path).to_s
+    get "/results", "location" => "file:#{@wip.path}"
     last_response.should have_event(:type => 'content file presence', :outcome => 'present')
     last_response.should have_event(:type => 'comprehensive validation', :outcome => 'success');
 
     FileUtils::rm_r @wip.datafiles.reject { |df| df == @wip.sip_descriptor }.map { |df| File.join @wip.path, 'files', df.id }
-    get "/results", "location" => URI.join('file:/', @wip.path).to_s
+    get "/results", "location" => "file:#{@wip.path}"
     last_response.should have_event(:type => 'content file presence', :outcome => 'missing')
     last_response.should have_event(:type => 'comprehensive validation', :outcome => 'failure');
   end
 
   it "should compare checksums for sip described files" do
-    get "/results", "location" => URI.join('file:/', @wip.path).to_s
+    get "/results", "location" => "file:#{@wip.path}"
     last_response.should have_event(:type => 'checksum comparison', :outcome => 'match')
   end
 

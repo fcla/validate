@@ -1,7 +1,7 @@
 <event>
   <eventIdentifier>
     <eventIdentifierType>URI</eventIdentifierType>
-    <eventIdentifierValue><%= URI.join(@wip.uri, 'event', 'sip-descriptor-validation').to_s %></eventIdentifierValue>
+    <eventIdentifierValue><%= "#{@wip.uri}/event/sip-descriptor-validation" %></eventIdentifierValue>
   </eventIdentifier>
   <eventType>sip descriptor validation</eventType>
   <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
