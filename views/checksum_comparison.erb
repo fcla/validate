@@ -1,7 +1,7 @@
 <event>
   <eventIdentifier>
     <eventIdentifierType>URI</eventIdentifierType>
-    <eventIdentifierValue><%= URI.join(@wip.uri, 'event', 'checksum-comparison').to_s %></eventIdentifierValue>
+    <eventIdentifierValue><%= "#{@wip.uri}/event/checksum-comparison" %></eventIdentifierValue>
   </eventIdentifier>
   <eventType>checksum comparison</eventType>
   <eventDateTime><%= Time.now.xmlschema %></eventDateTime>

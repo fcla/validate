@@ -1,7 +1,7 @@
 <event>
   <eventIdentifier>
     <eventIdentifierType>URI</eventIdentifierType>
-    <eventIdentifierValue><%= URI.join(@wip.uri, 'event', 'content-file-presence').to_s %></eventIdentifierValue>
+    <eventIdentifierValue><%= "#{@wip.uri}/event/content-file-presence" %></eventIdentifierValue>
   </eventIdentifier>
   <eventType>content file presence</eventType>
   <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
