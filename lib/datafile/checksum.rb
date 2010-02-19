@@ -25,6 +25,8 @@ class DataFile
       end
 
       [expected_md, actual_md]
+    else
+      [nil,nil]
     end
 
   end
