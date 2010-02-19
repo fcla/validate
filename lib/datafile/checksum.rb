@@ -11,16 +11,22 @@ class DataFile
     file_node = doc.find_first "//M:file[M:FLocat/@xlink:href = '#{metadata["sip-path"]}']", NS_PREFIX 
     expected_md = file_node['CHECKSUM']
 
-    actual_md = open do |io| 
-      case file_node["CHECKSUMTYPE"]
-      when "MD5" then Digest::MD5.hexdigest io.read
-      when "SHA-1" then Digest::SHA1.hexdigest io.read
-      when nil then infer expected_md
-      else raise "Unsupported checksum type: #{file_node["CHECKSUMTYPE"]}"
+    if expected_md
+
+      actual_md = open do |io| 
+
+        case file_node["CHECKSUMTYPE"]
+        when "MD5" then Digest::MD5.hexdigest io.read
+        when "SHA-1" then Digest::SHA1.hexdigest io.read
+        when nil then infer expected_md
+        else raise "Unsupported checksum type: #{file_node["CHECKSUMTYPE"]}"
+        end
+
       end
+
+      [expected_md, actual_md]
     end
 
-    [expected_md, actual_md]
   end
 
   private 
