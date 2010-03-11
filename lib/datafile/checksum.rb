@@ -6,14 +6,14 @@ class DataFile
 
   # Returns [sip descriptor checksum, computed checksum]
   def checksum_info
-    raise "#{self} is undescribed" unless wip.described_datafiles.include? self
     doc = wip.sip_descriptor.open { |io| XML::Document.io io }
-    file_node = doc.find_first "//M:file[M:FLocat/@xlink:href = '#{metadata["sip-path"]}']", NS_PREFIX 
+    file_node = doc.find_first "//M:file[M:FLocat/@xlink:href = '#{metadata["sip-path"]}']", NS_PREFIX
+    raise "#{self} is undescribed" unless file_node
     expected_md = file_node['CHECKSUM']
 
     if expected_md
 
-      actual_md = open do |io| 
+      actual_md = open do |io|
 
         case file_node["CHECKSUMTYPE"]
         when "MD5" then Digest::MD5.hexdigest io.read
@@ -31,7 +31,7 @@ class DataFile
 
   end
 
-  private 
+  private
 
   def infer s
 
