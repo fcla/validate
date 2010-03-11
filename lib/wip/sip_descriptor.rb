@@ -21,11 +21,19 @@ class Wip
   end
 
   def sip_descriptor_checksum df
-    file_node = sip_descriptor_doc.find_first "//M:file[M:FLocat/@xlink:href = '#{df.metadata['sip-path']}']", NS_PREFIX
 
-    if file_node
-      { :value => file_node['CHECKSUM'], :type => file_node["CHECKSUMTYPE"] }
+    @cache_datafile_checksum_info ||= sip_descriptor_doc.find("//M:file", NS_PREFIX).inject({}) do |acc, file_node|
+      href_attr = file_node.find_first "M:FLocat/@xlink:href", NS_PREFIX
+
+      if href_attr
+        acc[href_attr.value] = { :value => file_node['CHECKSUM'], :type => file_node["CHECKSUMTYPE"] }
+      end
+
+      acc
     end
+
+
+    @cache_datafile_checksum_info[df.metadata['sip-path']]
 
   end
 
