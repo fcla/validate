@@ -7,21 +7,26 @@ include LibXML
 
 class Wip
 
+  def sip_descriptor_name
+    @cache_sip_descriptor_name ||= "#{metadata['sip-name']}.xml"
+  end
+
   # Returns the datafile that described the SIP
   def sip_descriptor
-
-    if @cached_sip_descriptor
-      @cached_sip_descriptor
-    else
-      descriptor_name = "#{metadata['sip-name']}.xml"
-      @cached_sip_descriptor = datafiles.find { |df| df['sip-path'] ==  descriptor_name }
-    end
-
+    @cache_sip_descriptor ||= datafiles.find { |df| df['sip-path'] ==  sip_descriptor_name }
   end
 
   def sip_descriptor_doc
-    @cached_descriptor_doc ||= sip_descriptor.open { |io| XML::Document.io io }
-    @cached_descriptor_doc
+    @cache_sip_descriptor_doc ||= sip_descriptor.open { |io| XML::Document.io io }
+  end
+
+  def sip_descriptor_checksum df
+    file_node = sip_descriptor_doc.find_first "//M:file[M:FLocat/@xlink:href = '#{df.metadata['sip-path']}']", NS_PREFIX
+
+    if file_node
+      { :value => file_node['CHECKSUM'], :type => file_node["CHECKSUMTYPE"] }
+    end
+
   end
 
   # Returns a list of datafiles that are not the descriptor
@@ -32,7 +37,7 @@ class Wip
   # Returns an array of datafiles that are described in the sip_descriptor
   def described_datafiles
     if sip_descriptor
-      doc = sip_descriptor.open { |io| XML::Document.io io }
+      doc = sip_descriptor_doc
       sip_paths = doc.find("//M:file/M:FLocat/@xlink:href", NS_PREFIX).map { |node| node.value }
       datafiles.select { |df| sip_paths.include? df['sip-path'] }
     else

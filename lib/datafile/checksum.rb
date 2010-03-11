@@ -6,25 +6,22 @@ class DataFile
 
   # Returns [sip descriptor checksum, computed checksum]
   def checksum_info
-    doc = wip.sip_descriptor_doc
-    file_node = doc.find_first "//M:file[M:FLocat/@xlink:href = '#{metadata["sip-path"]}']", NS_PREFIX
-    raise "#{self} is undescribed" unless file_node
-    expected_md = file_node['CHECKSUM']
+    expected = wip.sip_descriptor_checksum self
 
-    if expected_md
+    if expected
 
       actual_md = open do |io|
 
-        case file_node["CHECKSUMTYPE"]
+        case expected[:type]
         when "MD5" then Digest::MD5.hexdigest io.read
         when "SHA-1" then Digest::SHA1.hexdigest io.read
-        when nil then infer expected_md
-        else raise "Unsupported checksum type: #{file_node["CHECKSUMTYPE"]}"
+        when nil then infer expected[:value]
+        else raise "Unsupported checksum type: #{expected[:type]}"
         end
 
       end
 
-      [expected_md, actual_md]
+      [expected[:value], actual_md]
     else
       [nil,nil]
     end
