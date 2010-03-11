@@ -9,8 +9,14 @@ class Wip
 
   # Returns the datafile that described the SIP
   def sip_descriptor
-    descriptor_name = "#{metadata['sip-name']}.xml" 
-    datafiles.find { |df| df['sip-path'] ==  descriptor_name } 
+
+    if @cached_sip_descriptor
+      @cached_sip_descriptor
+    else
+      descriptor_name = "#{metadata['sip-name']}.xml"
+      @cached_sip_descriptor = datafiles.find { |df| df['sip-path'] ==  descriptor_name }
+    end
+
   end
 
   # Returns a list of datafiles that are not the descriptor
