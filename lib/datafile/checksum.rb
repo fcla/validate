@@ -6,7 +6,7 @@ class DataFile
 
   # Returns [sip descriptor checksum, computed checksum]
   def checksum_info
-    doc = wip.descriptor_doc
+    doc = wip.sip_descriptor_doc
     file_node = doc.find_first "//M:file[M:FLocat/@xlink:href = '#{metadata["sip-path"]}']", NS_PREFIX
     raise "#{self} is undescribed" unless file_node
     expected_md = file_node['CHECKSUM']

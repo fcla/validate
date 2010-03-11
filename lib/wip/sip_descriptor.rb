@@ -19,7 +19,7 @@ class Wip
 
   end
 
-  def descriptor_doc
+  def sip_descriptor_doc
     @cached_descriptor_doc ||= sip_descriptor.open { |io| XML::Document.io io }
     @cached_descriptor_doc
   end
