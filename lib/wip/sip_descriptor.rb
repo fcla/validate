@@ -35,9 +35,14 @@ class Wip
     end
   end
 
+  def validate_sip_descriptor
+    val = sip_descriptor.open { |io| JValidation.new io.read }
+    @sip_descriptor_errors = val.results
+  end
+
   # Returns true if the sip descriptor is valid, false otherwise. errors are aggregated into sip_descriptor_errors
   def sip_descriptor_valid?
-    @sip_descriptor_errors = sip_descriptor.open { |io| JValidation.new(io.read).results }
+    validate_sip_descriptor unless @sip_descriptor_errors
     @sip_descriptor_errors.empty?
   end
   attr_accessor :sip_descriptor_errors
