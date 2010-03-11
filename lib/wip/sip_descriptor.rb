@@ -19,6 +19,11 @@ class Wip
 
   end
 
+  def descriptor_doc
+    @cached_descriptor_doc ||= sip_descriptor.open { |io| XML::Document.io io }
+    @cached_descriptor_doc
+  end
+
   # Returns a list of datafiles that are not the descriptor
   def content_files
     datafiles.reject { |df| sip_descriptor == df }
