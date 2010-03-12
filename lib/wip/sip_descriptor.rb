@@ -5,14 +5,6 @@ require 'xmlns'
 
 include LibXML
 
-class DataFile
-
-  def sip_path
-    @cache_sip_path ||= metadata['sip-path']
-  end
-
-end
-
 class Wip
 
   def sip_descriptor_name
@@ -21,7 +13,7 @@ class Wip
 
   # Returns the datafile that described the SIP
   def sip_descriptor
-    @cache_sip_descriptor ||= datafiles.find { |df| df.sip_path ==  sip_descriptor_name }
+    @cache_sip_descriptor ||= datafiles.find { |df| df['sip-path'] ==  sip_descriptor_name }
   end
 
   def sip_descriptor_doc
@@ -29,7 +21,7 @@ class Wip
   end
 
   def sip_descriptor_checksum df
-    sip_descriptor_datafile_info[df.sip_path]
+    sip_descriptor_datafile_info[df['sip-path']]
   end
 
   # Returns a list of datafiles that are not the descriptor
@@ -41,7 +33,17 @@ class Wip
   def described_datafiles
     if sip_descriptor
       sip_paths = sip_descriptor_datafile_info.keys
-      datafiles.select { |df| sip_paths.include? df.sip_path }
+
+      datafiles.inject([]) do |acc, df|
+        sp = df['sip-path']
+
+        if sip_descriptor_datafile_info.has_key? sp
+          acc << df
+        end
+
+        acc
+      end
+
     else
       []
     end
