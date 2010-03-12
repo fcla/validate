@@ -7,13 +7,17 @@ include LibXML
 
 class Wip
 
+  def cached_datafiles
+    @cache_datafiles ||= datafiles
+  end
+
   def sip_descriptor_name
     @cache_sip_descriptor_name ||= "#{metadata['sip-name']}.xml"
   end
 
   # Returns the datafile that described the SIP
   def sip_descriptor
-    @cache_sip_descriptor ||= datafiles.find { |df| df['sip-path'] ==  sip_descriptor_name }
+    @cache_sip_descriptor ||= cached_datafiles.find { |df| df['sip-path'] ==  sip_descriptor_name }
   end
 
   def sip_descriptor_doc
@@ -26,7 +30,7 @@ class Wip
 
   # Returns a list of datafiles that are not the descriptor
   def content_files
-    datafiles.reject { |df| sip_descriptor == df }
+    @cache_content_files ||= cached_datafiles.reject { |df| sip_descriptor == df }
   end
 
   # Returns an array of datafiles that are described in the sip_descriptor
@@ -34,13 +38,9 @@ class Wip
     if sip_descriptor
       sip_paths = sip_descriptor_datafile_info.keys
 
-      datafiles.inject([]) do |acc, df|
+      cached_datafiles.inject([]) do |acc, df|
         sp = df['sip-path']
-
-        if sip_descriptor_datafile_info.has_key? sp
-          acc << df
-        end
-
+        acc << df if sip_descriptor_datafile_info.has_key? sp
         acc
       end
 
