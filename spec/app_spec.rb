@@ -5,7 +5,7 @@ require File.join(File.dirname(__FILE__), '..', 'app')
 describe Validation::App do
 
   before :each do
-    uuid = UUID_GENERATOR.generate
+    uuid = UUID.generate
     sip = Sip.new File.join(File.dirname(__FILE__), 'sips', 'ateam')
     @wip = Wip.make_from_sip "/tmp/#{ uuid }", "test:/#{uuid}", sip
   end
@@ -37,7 +37,7 @@ describe Validation::App do
     last_response.should have_event(:type => 'sip descriptor validation', :outcome => 'valid')
     last_response.should have_event(:type => 'comprehensive validation', :outcome => 'success');
 
-    xml = @wip.sip_descriptor.open do |io| 
+    xml = @wip.sip_descriptor.open do |io|
       doc = XML::Document.io io
       doc.find("//@ID").each { |a| a.remove! }
       doc.to_s
@@ -51,7 +51,7 @@ describe Validation::App do
   end
 
   it "should validate the sip account"
-  
+
   it "should detect at least one data file" do
     get "/results", "location" => "file:#{@wip.path}"
     last_response.should have_event(:type => 'content file presence', :outcome => 'present')

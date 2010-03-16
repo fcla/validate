@@ -4,8 +4,6 @@ require 'uuid'
 require 'xmlns'
 require 'sinatra'
 
-UUID_GENERATOR = UUID.new
-
 Spec::Runner.configure do |conf|
   conf.include Rack::Test::Methods
 end
@@ -20,8 +18,8 @@ Spec::Matchers.define :have_event do |options|
 
   match do |res|
     doc = XML::Document.string res.body
-    xpath = %Q{//P:event[ P:eventType = '#{options[:type]}' and 
-                          P:eventOutcomeInformation/P:eventOutcome = '#{options[:outcome]}' ]} 
+    xpath = %Q{//P:event[ P:eventType = '#{options[:type]}' and
+                          P:eventOutcomeInformation/P:eventOutcome = '#{options[:outcome]}' ]}
     doc.find_first xpath, NS_PREFIX
   end
 

@@ -6,10 +6,10 @@
   <eventType>checksum comparison</eventType>
   <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
   <eventOutcomeInformation>
-  <% 
+  <%
     checksum_info = @wip.described_datafiles.map { |df| [ df['sip-path'] ] + df.checksum_info }
     checksum_info.reject! { |path, desc, comp| desc == nil and comp == nil }
-    matches, mismatches = checksum_info.partition { |(path, desc, comp)| desc == comp } 
+    matches, mismatches = checksum_info.partition { |(path, desc, comp)| desc == comp }
   %>
   <eventOutcome><%=  mismatches.empty? ? 'match' : 'mismatch' %></eventOutcome>
     <eventOutcomeDetail>
