@@ -50,8 +50,6 @@ describe Validation::App do
     last_response.should have_event(:type => 'comprehensive validation', :outcome => 'failure');
   end
 
-  it "should validate the sip account"
-
   it "should detect at least one data file" do
     get "/results", "location" => "file:#{@wip.path}"
     last_response.should have_event(:type => 'content file presence', :outcome => 'present')
