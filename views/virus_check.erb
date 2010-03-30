@@ -9,6 +9,7 @@
   <%
     virus_check_info = @wip.described_datafiles.map { |df| [ df.virus_check, df['sip-path'] ] }
     passed, failed = virus_check_info.partition { |element| element[0][0] == true}
+    @any_errors = true if failed.any?
   %>
   <eventOutcome><%=  failed.empty? ? 'passed' : 'failed' %></eventOutcome>
     <% if failed.any? %>
