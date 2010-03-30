@@ -10,7 +10,7 @@
     checksum_info = @wip.described_datafiles.map { |df| [ df['sip-path'] ] + df.checksum_info }
     checksum_info.reject! { |path, desc, comp| desc == nil and comp == nil }
     matches, mismatches = checksum_info.partition { |(path, desc, comp)| desc == comp }
-    @any_errors = true if mismatches.any?
+    #@any_errors = true if mismatches.any? PENDING: this line is currently causing good packages to fail validation
   %>
   <eventOutcome><%=  mismatches.empty? ? 'match' : 'mismatch' %></eventOutcome>
     <eventOutcomeDetail>
