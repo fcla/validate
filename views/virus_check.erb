@@ -1,0 +1,33 @@
+<event>
+  <eventIdentifier>
+    <eventIdentifierType>URI</eventIdentifierType>
+    <eventIdentifierValue><%= "#{@wip.uri}/event/virus_check" %></eventIdentifierValue>
+  </eventIdentifier>
+  <eventType>virus check</eventType>
+  <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
+  <eventOutcomeInformation>
+  <%
+    virus_check_info = @wip.described_datafiles.map { |df| [ df.virus_check, df['sip-path'] ] }
+    passed, failed = virus_check_info.partition { |element| element[0][0] == true}
+  %>
+  <eventOutcome><%=  failed.empty? ? 'passed' : 'failed' %></eventOutcome>
+    <% if failed.any? %>
+    <eventOutcomeDetail>
+      <eventOutcomeDetailNote>
+      <% failed.each do |failure| %>
+        Datafile path: <%= failure[1] %>
+        Output from virus scanner: <%= failure[0][1] %>
+      <% end %>
+      </eventOutcomeDetailNote>
+    </eventOutcomeDetail>
+  <% end %>
+  </eventOutcomeInformation>
+  <linkingObjectIdentifier>
+    <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
+    <linkingObjectIdentifierValue><%= @wip.uri %></linkingObjectIdentifierValue>
+  </linkingObjectIdentifier>
+  <linkingAgentIdentifier>
+    <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
+    <linkingAgentIdentifierValue>info:fcla/archive/service/validation</linkingAgentIdentifierValue>
+  </linkingAgentIdentifier>
+</event>

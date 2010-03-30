@@ -61,13 +61,13 @@ describe DataFile do
     end
 
     it "should virus check itself" do
-      subject.virus_check.should == true
+      subject.virus_check[0].should == true
     end
 
-    it "should raise error if virus is found" do
+    it "should indicate a failed virus check" do
       Daitss::CONFIG.stub!(:[]).and_return "false"
       
-      lambda { subject.virus_check }.should raise_error(VirusFound)
+      subject.virus_check[0].should == false
     end
   end
 end

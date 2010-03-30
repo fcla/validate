@@ -66,6 +66,10 @@ describe Validation::App do
     last_response.should have_event(:type => 'checksum comparison', :outcome => 'match')
   end
 
-  it "should virus check each file"
+  it "should virus check each file" do
+    get "/results", "location" => "file:#{@wip.path}"
+
+    last_response.should have_event(:type => 'virus check', :outcome => 'passed')
+  end
 
 end

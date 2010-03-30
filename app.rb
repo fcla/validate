@@ -4,6 +4,7 @@ require 'sinatra'
 require 'wip'
 require 'wip/sip_descriptor'
 require 'datafile/checksum'
+require 'datafile/virus'
 
 # if we want to rack multiple sinatras up we need to have them separate
 module Validation
