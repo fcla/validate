@@ -4,6 +4,7 @@ require 'datafile/virus'
 require 'xmlns'
 require 'uuid'
 require 'wip/sip_descriptor'
+require 'daitss/config'
 
 describe DataFile do
 
@@ -59,7 +60,15 @@ describe DataFile do
       lambda { subject.df.checksum_info }.should_not raise_error("Missing checksum type")
     end
 
-  end
+    it "should virus check itself" do
+      subject.virus_check.should == true
+    end
 
+    it "should raise error if virus is found" do
+      Daitss::CONFIG.stub!(:[]).and_return "false"
+      
+      lambda { subject.virus_check }.should raise_error(VirusFound)
+    end
+  end
 end
 
