@@ -16,10 +16,10 @@
     <eventOutcomeDetail>
       <eventOutcomeDetailNote>
       <% matches.each do |df, desc, comp| %>
-        <%= df['sip-path'] %>, <%= desc %>
+        <%= df %>, <%= desc %>
       <% end %>
       <% mismatches.each do |df, desc, comp| %>
-        <%= df['sip-path'] %>, sip descriptor: <%= desc %>, computed: <%= comp %>
+        <%= df %>, sip descriptor: <%= desc %>, computed: <%= comp %>
       <% end %>
       </eventOutcomeDetailNote>
     </eventOutcomeDetail>
