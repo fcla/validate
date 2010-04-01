@@ -8,7 +8,7 @@ class DataFile
   def checksum_info
     expected = wip.sip_descriptor_checksum self
 
-    if expected
+    if expected[:value]
 
       actual_md = open do |io|
 
