@@ -49,7 +49,7 @@ describe DataFile do
       lambda {
         fresh_wip = Wip.new subject.wip.path
         fresh_wip.datafiles.first.checksum_info
-      }.should raise_error("Missing checksum type")
+      }.should raise_error(/Missing checksum type/)
     end
 
     it "should infer SHA-1 or MD5 by length and contents for checksum type if missing" do
@@ -66,7 +66,7 @@ describe DataFile do
 
     it "should indicate a failed virus check" do
       Daitss::CONFIG.stub!(:[]).and_return "false"
-      
+
       subject.virus_check[0].should == false
     end
   end
