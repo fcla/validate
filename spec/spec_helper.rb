@@ -3,6 +3,10 @@ require 'spec'
 require 'uuid'
 require 'xmlns'
 require 'sinatra'
+require 'daitss/config'
+
+raise "CONFIG not set" unless ENV['CONFIG']
+Daitss::CONFIG.load ENV['CONFIG']
 
 Spec::Runner.configure do |conf|
   conf.include Rack::Test::Methods
@@ -20,7 +24,7 @@ Spec::Matchers.define :have_event do |options|
     doc = XML::Document.string res.body
     xpath = %Q{//P:event[ P:eventType = '#{options[:type]}' and
                           P:eventOutcomeInformation/P:eventOutcome = '#{options[:outcome]}' ]}
-    doc.find_first xpath, NS_PREFIX
+                          doc.find_first xpath, NS_PREFIX
   end
 
   failure_message_for_should do |res|
