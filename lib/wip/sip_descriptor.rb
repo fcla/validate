@@ -1,5 +1,5 @@
 require 'wip'
-require 'jxmlvalidation'
+require 'jxml/validator'
 require 'libxml'
 require 'xmlns'
 
@@ -50,8 +50,10 @@ class Wip
   end
 
   def validate_sip_descriptor
-    val = sip_descriptor.open { |io| JValidation.new io.read }
-    @sip_descriptor_errors = val.results
+    xml = sip_descriptor.open { |io| io.read }
+    val = JXML::Validator.new
+    results = val.validate xml
+    @sip_descriptor_errors = results[:errors] + results [:fatals]
   end
 
   # Returns true if the sip descriptor is valid, false otherwise. errors are aggregated into sip_descriptor_errors
