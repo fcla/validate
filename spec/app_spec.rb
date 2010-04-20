@@ -1,75 +1,39 @@
 require 'spec_helper'
-require 'wip/create'
+
 require File.join(File.dirname(__FILE__), '..', 'app')
 
 describe Validation::App do
 
-  before :each do
-    uuid = UUID.generate
-    sip = Sip.new File.join(File.dirname(__FILE__), 'sips', 'ateam')
-    @wip = Wip.make_from_sip "/tmp/#{ uuid }", "test:/#{uuid}", sip
-  end
+  it "should passed clean virus check status for clean file" do
+    file_string = StringIO.new
 
-  it "should detect a good wip" do
-    get "/results", "location" => "file:#{@wip.path}"
-    last_response.status.should == 200
-
-    get "/results", "location" => "xxx:/#{@wip.path}"
-    last_response.status.should == 400
-
-    get "/results", "location" => 'C:\not a uri'
-    last_response.status.should == 400
-  end
-
-  it "should detect the sip descriptor" do
-    get "/results", "location" => "file:#{@wip.path}"
-    last_response.should have_event(:type => 'sip descriptor presence', :outcome => 'present')
-    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'success');
-
-    @wip.sip_descriptor['sip-path'] = 'xxx'
-    get "/results", "location" => "file:#{@wip.path}"
-    last_response.should have_event(:type => 'sip descriptor presence', :outcome => 'missing')
-    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'failure');
-  end
-
-  it "should validate the sip descriptor" do
-    get "/results", "location" => "file:#{@wip.path}"
-    last_response.should have_event(:type => 'sip descriptor validation', :outcome => 'valid')
-    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'success');
-
-    xml = @wip.sip_descriptor.open do |io|
-      doc = XML::Document.io io
-      doc.find("//@ID").each { |a| a.remove! }
-      doc.to_s
+    # read file into string io
+    File.open "spec/files/ateam.tiff" do |file|
+      file_string << file.read 
     end
 
-    @wip.sip_descriptor.open('w') { |io| io.write xml }
+    post "/", file_string
 
-    get "/results", "location" => "file:#{@wip.path}"
-    last_response.should have_event(:type => 'sip descriptor validation', :outcome => 'invalid')
-    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'failure');
+    last_response.should have_event(:type => "virus check", :outcome => "passed")
   end
 
-  it "should detect at least one data file" do
-    get "/results", "location" => "file:#{@wip.path}"
-    last_response.should have_event(:type => 'content file presence', :outcome => 'present')
-    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'success');
+  it "should return failed virus check event for infected file" do
+    file_string = StringIO.new
 
-    FileUtils::rm_r @wip.datafiles.reject { |df| df == @wip.sip_descriptor }.map { |df| File.join @wip.path, 'files', df.id }
-    get "/results", "location" => "file:#{@wip.path}"
-    last_response.should have_event(:type => 'content file presence', :outcome => 'missing')
-    last_response.should have_event(:type => 'comprehensive validation', :outcome => 'failure');
+    # read file into string io
+    File.open "spec/files/eicar.com" do |file|
+      file_string << file.read 
+    end
+
+    post "/", file_string
+
+    last_response.should have_event(:type => "virus check", :outcome => "failed")
   end
 
-  it "should compare checksums for sip described files" do
-    get "/results", "location" => "file:#{@wip.path}"
-    last_response.should have_event(:type => 'checksum comparison', :outcome => 'match')
+  it "should return 400 if body is empty" do
+
+    post "/"
+
+    last_response.status.should == 400
   end
-
-  it "should virus check each file" do
-    get "/results", "location" => "file:#{@wip.path}"
-
-    last_response.should have_event(:type => 'virus check', :outcome => 'passed')
-  end
-
 end

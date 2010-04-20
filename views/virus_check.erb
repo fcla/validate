@@ -1,34 +1,30 @@
 <event>
   <eventIdentifier>
     <eventIdentifierType>URI</eventIdentifierType>
-    <eventIdentifierValue><%= "#{@wip.uri}/event/virus_check" %></eventIdentifierValue>
+    <eventIdentifierValue><%= "#{@path}/event/virus_check" %></eventIdentifierValue>
   </eventIdentifier>
   <eventType>virus check</eventType>
   <eventDateTime><%= Time.now.xmlschema %></eventDateTime>
   <eventOutcomeInformation>
   <%
-    virus_check_info = @wip.described_datafiles.map { |df| [ df.virus_check, df['sip-path'] ] }
-    passed, failed = virus_check_info.partition { |element| element[0][0] == true}
-    @any_errors = true if failed.any?
+    virus_check_info = VirusCheck.virus_check @path
+    passed = virus_check_info[0]
   %>
-  <eventOutcome><%=  failed.empty? ? 'passed' : 'failed' %></eventOutcome>
-    <% if failed.any? %>
+  <eventOutcome><%=  passed ? 'passed' : 'failed' %></eventOutcome>
+    <% if not passed %>
     <eventOutcomeDetail>
       <eventOutcomeDetailNote>
-      <% failed.each do |failure| %>
-        Datafile path: <%= failure[1] %>
-        Output from virus scanner: <%= failure[0][1] %>
-      <% end %>
+        Output from virus scanner: <%= virus_check_info[1] %>
       </eventOutcomeDetailNote>
     </eventOutcomeDetail>
   <% end %>
   </eventOutcomeInformation>
   <linkingObjectIdentifier>
     <linkingObjectIdentifierType>URI</linkingObjectIdentifierType>
-    <linkingObjectIdentifierValue><%= @wip.uri %></linkingObjectIdentifierValue>
+    <linkingObjectIdentifierValue><%= @path %></linkingObjectIdentifierValue>
   </linkingObjectIdentifier>
   <linkingAgentIdentifier>
     <linkingAgentIdentifierType>URI</linkingAgentIdentifierType>
-    <linkingAgentIdentifierValue>info:fcla/archive/service/validation</linkingAgentIdentifierValue>
+    <linkingAgentIdentifierValue>info:fcla/archive/service/viruscheck</linkingAgentIdentifierValue>
   </linkingAgentIdentifier>
 </event>
