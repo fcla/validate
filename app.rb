@@ -9,24 +9,16 @@ module Validation
 
   class App < Sinatra::Base
 
-    post '/*' do
+    post '/' do
       Daitss::CONFIG.load ENV['CONFIG']
 
       # return 400 if there is no body in the request
-      request.body.rewind
-      halt 400, "Missing body" if request.body.size == 0
+      error 400, "Missing Data" unless params['data']
 
-      # write body to a tempfile
-      tf = Tempfile.new rand(1000)
-
-      while (buffer = request.body.read 1048576)
-        tf << buffer
-      end
-
-      tf.rewind
-
+      tf = Tempfile.new 'vc'
+      tf.write params['data']
+      tf.flush
       @path = tf.path
-
       erb :results
     end
 
