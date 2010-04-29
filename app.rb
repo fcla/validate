@@ -8,6 +8,7 @@ require 'daitss/config'
 module Validation
 
   class App < Sinatra::Base
+    set :root, File.dirname(__FILE__)
 
     post '/' do
       Daitss::CONFIG.load ENV['CONFIG']
